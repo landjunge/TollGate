@@ -14,7 +14,7 @@
   <a href="https://github.com/landjunge/agent-authority-lab/blob/main/README.md" title="AgentAuthority"><img src="assets/readme/Agent-Authority-dark.svg" alt="AgentAuthority" width="48" height="48"></a>
 </p>
 
-<h1 align="center">TollGate</h1>
+<p align="center"><img src="assets/design/wordmarks/TollGate-dark.svg" alt="TollGate" width="280"></p>
 
 <p align="center"><strong>A safety gate for AI agents.</strong></p>
 
