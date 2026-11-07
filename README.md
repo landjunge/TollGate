@@ -5,13 +5,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/landjunge/threaddesk/blob/docs/product-family-readme-20261031/README.md" title="ThreadDesk"><img src="assets/readme/ThreadDesk-dark-128.png" alt="ThreadDesk" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/threaddesk/blob/main/README.md" title="ThreadDesk"><img src="assets/readme/ThreadDesk-dark-128.png" alt="ThreadDesk" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/KiraBridge/blob/docs/product-family-readme-20261031/README.md" title="KiraBridge"><img src="assets/readme/KiraBridge-dark.svg" alt="KiraBridge" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/KiraBridge/blob/main/README.md" title="KiraBridge"><img src="assets/readme/KiraBridge-dark.svg" alt="KiraBridge" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/4AllPass/blob/docs/product-family-readme-20261031/README.md" title="4AllPass"><img src="assets/readme/4AllPass-dark-128.png" alt="4AllPass" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/4AllPass/blob/main/README.md" title="4AllPass"><img src="assets/readme/4AllPass-dark-128.png" alt="4AllPass" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/agent-authority-lab/blob/docs/product-family-readme-20261031/README.md" title="Agent Authority"><img src="assets/readme/Agent-Authority-dark.svg" alt="Agent Authority" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/agent-authority-lab/blob/main/README.md" title="AgentAuthority"><img src="assets/readme/Agent-Authority-dark.svg" alt="AgentAuthority" width="48" height="48"></a>
 </p>
 
 <h1 align="center">TollGate</h1>
@@ -53,13 +53,13 @@ The five products remain independent. The goal is a shared workflow with **KiraB
 
 | Product | Role in the shared workflow |
 | --- | --- |
-| [ThreadDesk](https://github.com/landjunge/threaddesk/blob/docs/product-family-readme-20261031/README.md) | Keeps project context, knowledge and results. |
-| [KiraBridge](https://github.com/landjunge/KiraBridge/blob/docs/product-family-readme-20261031/README.md) | Relays tasks, questions and replies between chat, local agents and tools. |
-| [4AllPass](https://github.com/landjunge/4AllPass/blob/docs/product-family-readme-20261031/README.md) | Manages credentials; is intended to enable specifically approved access. |
-| [TollGate](https://github.com/landjunge/tollgate/blob/docs/product-family-readme-20261031/README.md) | Checks connected calls and enforces usage limits and stops. |
-| [Agent Authority](https://github.com/landjunge/agent-authority-lab/blob/docs/product-family-readme-20261031/README.md) | Shows observations, contradictions and missing evidence; does not approve actions. |
+| [ThreadDesk](https://github.com/landjunge/threaddesk/blob/main/README.md) | Keeps project context, knowledge and results. |
+| [KiraBridge](https://github.com/landjunge/KiraBridge/blob/main/README.md) | Relays tasks, questions and replies between chat, local agents and tools. |
+| [4AllPass](https://github.com/landjunge/4AllPass/blob/main/README.md) | Manages credentials; is intended to enable specifically approved access. |
+| [TollGate](https://github.com/landjunge/tollgate/blob/main/README.md) | Checks connected calls and enforces usage limits and stops. |
+| [AgentAuthority](https://github.com/landjunge/agent-authority-lab/blob/main/README.md) | Shows observations, contradictions and missing evidence; does not approve actions. |
 
-Some interfaces already exist. A fully configured and verified workflow across all five products is still planned. Approvals stay with the responsible tool and the human. KiraBridge and Agent Authority require access to their private repositories.
+Some interfaces already exist. A fully configured and verified workflow across all five products is still planned. Approvals stay with the responsible tool and the human. KiraBridge and AgentAuthority require access to their private repositories.
 
 ## License
 
