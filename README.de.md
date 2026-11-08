@@ -1,20 +1,28 @@
 [English](README.md) · **Deutsch**
 
 <p align="center">
-  <img src="assets/design/icons/dark/TollGate-dark-256.png" alt="TollGate" width="256" height="256">
+  <img src="assets/readme/normalized/TollGate-large.svg" alt="TollGate" width="256" height="256">
 </p>
 
 <p align="center">
-  <a href="https://github.com/landjunge/threaddesk/blob/main/README.de.md" title="ThreadDesk"><img src="assets/readme/ThreadDesk-dark-128.png" alt="ThreadDesk" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/KiraBridge/blob/main/README.de.md" title="KiraBridge"><img src="assets/readme/normalized/KiraBridge-small.svg" alt="KiraBridge" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/KiraBridge/blob/main/README.de.md" title="KiraBridge"><img src="assets/readme/KiraBridge-dark.svg" alt="KiraBridge" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/threaddesk#readme" title="ThreadDesk"><img src="assets/readme/normalized/ThreadDesk-small.svg" alt="ThreadDesk" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/4AllPass/blob/main/README.de.md" title="4AllPass"><img src="assets/readme/4AllPass-dark-128.png" alt="4AllPass" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/4AllPass#readme" title="4AllPass"><img src="assets/readme/normalized/4AllPass-small.svg" alt="4AllPass" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/agent-authority-lab/blob/main/README.de.md" title="AgentAuthority"><img src="assets/readme/Agent-Authority-dark.svg" alt="AgentAuthority" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/agent-authority-lab#readme" title="Agent Authority"><img src="assets/readme/normalized/Agent-Authority-small.svg" alt="Agent Authority" width="48" height="48"></a>
+  &nbsp;
+  <a href="https://github.com/landjunge/blockdesign#readme" title="BlockDesign"><img src="assets/readme/normalized/BlockDesign-small.svg" alt="BlockDesign" width="48" height="48"></a>
 </p>
 
-<p align="center"><img src="assets/design/wordmarks/TollGate-dark.svg" alt="TollGate" width="280"></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/design/wordmarks/TollGate-dark.svg"><img src="assets/design/wordmarks/TollGate-light.svg" alt="TollGate" width="280"></picture></p>
+
+<!-- AUTO-DOWNLOADS:START -->
+<p align="center">
+  <a href="https://github.com/landjunge/tollgate/archive/refs/heads/main.zip" title="tollgate-main.zip herunterladen / download"><img src="assets/readme/download-source.svg" alt="Download Quellcode / Source ZIP 1.0.12" width="190" height="52"></a>
+</p>
+<!-- AUTO-DOWNLOADS:END -->
 
 <p align="center"><strong>Eine Sicherheitsschranke für KI-Agenten.</strong></p>
 
@@ -53,11 +61,11 @@ Die fünf Produkte bleiben eigenständig. Geplant ist ein gemeinsamer Ablauf mit
 
 | Produkt | Aufgabe im gemeinsamen Ablauf |
 | --- | --- |
-| [ThreadDesk](https://github.com/landjunge/threaddesk/blob/main/README.de.md) | Bewahrt Projektstand, Wissen und Ergebnisse. |
+| [ThreadDesk](https://github.com/landjunge/threaddesk/blob/main/README.md) | Bewahrt Projektstand, Wissen und Ergebnisse. |
 | [KiraBridge](https://github.com/landjunge/KiraBridge/blob/main/README.de.md) | Vermittelt Aufträge, Rückfragen und Antworten zwischen Chat, lokalen Agenten und Werkzeugen. |
-| [4AllPass](https://github.com/landjunge/4AllPass/blob/main/README.de.md) | Verwaltet Zugangsdaten; soll gezielt erlaubte Zugriffe ermöglichen. |
+| [4AllPass](https://github.com/landjunge/4AllPass/blob/main/README.md) | Verwaltet Zugangsdaten; soll gezielt erlaubte Zugriffe ermöglichen. |
 | [TollGate](https://github.com/landjunge/tollgate/blob/main/README.de.md) | Prüft angeschlossene Aufrufe und setzt Verbrauchsgrenzen und Stopps durch. |
-| [AgentAuthority](https://github.com/landjunge/agent-authority-lab/blob/main/README.de.md) | Zeigt Beobachtungen, Widersprüche und fehlende Belege; erteilt keine Freigaben. |
+| [AgentAuthority](https://github.com/landjunge/agent-authority-lab/blob/master/README.md) | Zeigt Beobachtungen, Widersprüche und fehlende Belege; erteilt keine Freigaben. |
 
 Einzelne Schnittstellen sind vorhanden. Ein vollständig eingerichteter und geprüfter Ablauf aller fünf Produkte ist noch geplant. Freigaben bleiben beim zuständigen Werkzeug und beim Menschen. KiraBridge und AgentAuthority benötigen Zugriff auf ihre privaten Repositorys.
 
