@@ -1,3 +1,5 @@
+<!-- readme-header-v1: Kopf nach ThreadDesk docs/contracts/readme-header-v1.md. Nicht von Hand umgestalten; scripts/readme_header.py apply/check verwenden. -->
+
 [English](README.md) · **Deutsch**
 
 <p align="center">
@@ -20,7 +22,7 @@
 
 <!-- AUTO-DOWNLOADS:START -->
 <p align="center">
-  <a href="https://github.com/landjunge/tollgate/archive/refs/heads/main.zip" title="tollgate-main.zip herunterladen / download"><img src="assets/readme/download-source.svg" alt="Download Quellcode / Source ZIP 1.0.12" width="190" height="52"></a>
+  <a href="https://github.com/landjunge/tollgate/archive/refs/heads/main.zip" title="tollgate-main.zip herunterladen / download"><img src="assets/readme/download-source.svg" alt="Download Quellcode / Source ZIP · 1.0.12" width="190" height="52"></a>
 </p>
 <!-- AUTO-DOWNLOADS:END -->
 
