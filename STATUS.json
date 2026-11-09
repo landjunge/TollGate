@@ -1,0 +1,83 @@
+{
+  "schema": "status-v1",
+  "product": "TollGate",
+  "repo": {
+    "name": "landjunge/tollgate",
+    "visibility": "public",
+    "default_branch": "main"
+  },
+  "observed_at": "2026-11-09T06:54:45Z",
+  "plan": "BIGPLAN-BAUPLAN-20261108",
+  "main_pin": {
+    "commit": "ab3aec5ff1f682db5a5ab693242726d28edc26f5",
+    "committed_at": "2026-11-08T13:04:49Z"
+  },
+  "source_version": "1.0.12",
+  "releases": [
+    {
+      "tag": "announce-public",
+      "draft": false,
+      "prerelease": false,
+      "published_at": "2026-08-11T21:11:53Z",
+      "assets": []
+    }
+  ],
+  "installed": {
+    "mac": {
+      "state": "not-installed",
+      "observed_at": "2026-11-09T06:54:45Z",
+      "checked_paths": [
+        "/Applications/TollGate.app",
+        "~/Applications/TollGate.app"
+      ]
+    },
+    "windows": "unknown",
+    "linux": "unknown"
+  },
+  "server": {
+    "source": "ops/netcup.json (KiraBridge, BP-OPS-01)",
+    "observed_at": "2026-11-08T16:59:45Z",
+    "components": [
+      {
+        "name": "static-site",
+        "state": "configured",
+        "version": "unknown",
+        "source_commit": "unknown",
+        "exposure": "statische Seite im gemeinsamen Reverse-Proxy konfiguriert; laut Inventar zeigt der DNS von tollgate.netzwerkpunkt.de nicht auf diesen Host",
+        "note": "kein Gateway-Dienst auf dem Server"
+      }
+    ]
+  },
+  "open_packages": [
+    {
+      "id": "BP-TG-01",
+      "title": "erste Budgetbindung ueber TollGate",
+      "status": "open",
+      "note": "haengt an Entscheidung E4"
+    },
+    {
+      "id": "BP-TRUTH-01",
+      "title": "Ist-Stand-Register (diese Datei)",
+      "status": "in-progress"
+    },
+    {
+      "id": "BP-DOC-01",
+      "title": "READMEs und Lizenzen, Angaben aus STATUS.json",
+      "status": "open"
+    },
+    {
+      "id": "BP-DESIGN-01",
+      "title": "gemeinsames Designsystem",
+      "status": "open"
+    },
+    {
+      "id": "BP-HYG-01",
+      "title": "Arbeitsstände und Worktrees aufräumen",
+      "status": "open"
+    }
+  ],
+  "notes": [
+    "Das einzige Release 'announce-public' ist eine Ankuendigung ohne Pakete; es gibt keinen Installer.",
+    "Status 'open' heisst: laut Bauplan offen, in diesem Register kein Abschlussbeleg."
+  ]
+}
