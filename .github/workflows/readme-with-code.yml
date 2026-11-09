@@ -1,15 +1,24 @@
 name: README with code
-# Only checks README coverage; no extra PR, no design editing, no repository writes.
+# Same check in KiraBridge, ThreadDesk, 4AllPass, TollGate and BlockDesign.
+# Pull request: product code without README fails, unless the description holds
+# the line "README: not needed" (re-checked on edit, no extra commit needed).
+# Main: advisory only, so it never asks for follow-up README commits.
+# Read-only: no generated text, no layout change, no push, no extra PR.
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   push:
     branches: [main]
 permissions:
   contents: read
+concurrency:
+  group: readme-with-code-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   documentation:
     name: README with code
+    if: ${{ github.event.action != 'edited' || github.event.changes.body }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -18,29 +27,55 @@ jobs:
           fetch-depth: 0
       - name: Check README alongside product changes
         env:
+          EVENT: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           python3 - <<'PY'
-          import os, subprocess, sys
+          import os, re, subprocess, sys
           sources = ('src/', 'n8n-nodes-tollgate/', 'configs/', 'pyproject.toml')
           required = ('README.md', 'README.de.md')
-          base = os.environ.get("BASE_SHA","")
-          if not base or set(base)=={"0"}:
-              print("No usable prior commit to compare; no assertion.")
+          event = os.environ.get("EVENT", "")
+          base = os.environ.get("BASE_SHA", "")
+          summary = os.environ.get("GITHUB_STEP_SUMMARY", "")
+
+          def note(text):
+              print(text)
+              if summary:
+                  with open(summary, "a", encoding="utf-8") as handle:
+                      handle.write(text + "\n")
+
+          if not base or set(base) == {"0"}:
+              note("No comparison base; nothing asserted.")
               sys.exit(0)
           try:
-              subprocess.run(["git","cat-file","-e",base+"^{commit}"],check=True,capture_output=True)
-              changed=subprocess.check_output(["git","diff","--name-only",base,"HEAD"],text=True).splitlines()
+              subprocess.run(["git", "cat-file", "-e", base + "^{commit}"], check=True, capture_output=True)
+              changed = subprocess.check_output(["git", "diff", "--name-only", base, "HEAD"], text=True).splitlines()
+              subject = subprocess.check_output(["git", "log", "-1", "--format=%s", "HEAD"], text=True).strip()
           except (OSError, subprocess.CalledProcessError) as exc:
-              print("::error::Cannot determine README changes: "+str(exc));sys.exit(1)
-          product=[x for x in changed if any(x==p or (p.endswith("/") and x.startswith(p)) for p in sources)]
-          if not product:
-              print("No product source changed.");sys.exit(0)
-          missing=[p for p in required if p not in changed]
-          if missing:
-              print("::error::Product code changed without corresponding README: "+", ".join(missing))
-              print("Update relevant documentation alongside tested code, preserving existing design.")
-              print("Changed product files:",", ".join(product[:20]))
+              print("::error::Cannot determine changed files: " + str(exc))
               sys.exit(1)
-          print("Required READMEs changed with source; semantic accuracy requires review.")
+          product = [p for p in changed if any(p == s or (s.endswith("/") and p.startswith(s)) for s in sources)]
+          if not product:
+              note("No product source changed; no README update expected.")
+              sys.exit(0)
+          missing = [p for p in required if p not in changed]
+          if not missing:
+              note("README changed together with product code; review checks the content.")
+              sys.exit(0)
+          if event != "pull_request":
+              if re.search(r"^Merge pull request #\d+|\(#\d+\)$", subject):
+                  note("Integrated through a pull request; the README decision was checked there.")
+              else:
+                  print("::warning::Product code reached main without " + ", ".join(missing) + ".")
+                  note("Advisory only after integration: document user-visible changes with the next real change; do not add content-free README commits.")
+              sys.exit(0)
+          if re.search(r"(?im)^\s*README:\s*(not needed|nicht nötig)\s*$", os.environ.get("PR_BODY") or ""):
+              note("README unchanged by explicit decision in the pull request description.")
+              sys.exit(0)
+          print("::error::Product code changed without " + ", ".join(missing) + ".")
+          print("User-visible change: update the README in this pull request, keeping its design.")
+          print("Internal change: add the line 'README: not needed' to the pull request description; the check re-runs without a new commit.")
+          print("Changed product files:", ", ".join(product[:20]))
+          sys.exit(1)
           PY
