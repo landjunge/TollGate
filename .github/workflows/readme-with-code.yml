@@ -1,0 +1,46 @@
+name: README with code
+# Only checks README coverage; no extra PR, no design editing, no repository writes.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  documentation:
+    name: README with code
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Check README alongside product changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          python3 - <<'PY'
+          import os, subprocess, sys
+          sources = ('src/', 'n8n-nodes-tollgate/', 'configs/', 'pyproject.toml')
+          required = ('README.md', 'README.de.md')
+          base = os.environ.get("BASE_SHA","")
+          if not base or set(base)=={"0"}:
+              print("No usable prior commit to compare; no assertion.")
+              sys.exit(0)
+          try:
+              subprocess.run(["git","cat-file","-e",base+"^{commit}"],check=True,capture_output=True)
+              changed=subprocess.check_output(["git","diff","--name-only",base,"HEAD"],text=True).splitlines()
+          except (OSError, subprocess.CalledProcessError) as exc:
+              print("::error::Cannot determine README changes: "+str(exc));sys.exit(1)
+          product=[x for x in changed if any(x==p or (p.endswith("/") and x.startswith(p)) for p in sources)]
+          if not product:
+              print("No product source changed.");sys.exit(0)
+          missing=[p for p in required if p not in changed]
+          if missing:
+              print("::error::Product code changed without corresponding README: "+", ".join(missing))
+              print("Update relevant documentation alongside tested code, preserving existing design.")
+              print("Changed product files:",", ".join(product[:20]))
+              sys.exit(1)
+          print("Required READMEs changed with source; semantic accuracy requires review.")
+          PY
