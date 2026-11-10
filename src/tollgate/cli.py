@@ -252,6 +252,16 @@ def main(argv: list[str] | None = None) -> None:
         help=t("cmd.desk.json"),
     )
 
+    plan = sub.add_parser("plan-status", help=t("cmd.plan_status"))
+    plan.add_argument("--provider", choices=["all", "codex", "claude", "grok"], default="all",
+                      help=t("cmd.plan_status.provider"))
+    plan.add_argument("--no-live", action="store_true", help=t("cmd.plan_status.no_live"))
+    plan.add_argument("--evaluate", default="", metavar="SINCE",
+                      help=t("cmd.plan_status.evaluate"))
+    plan.add_argument("--claude-statusline", action="store_true",
+                      help=t("cmd.plan_status.statusline"))
+    plan.add_argument("--log", default="", help=t("cmd.plan_status.log"))
+
     cert = sub.add_parser(
         "certificate",
         help=t("cmd.report_card"),
@@ -599,6 +609,32 @@ def main(argv: list[str] | None = None) -> None:
             print(json.dumps(desk_status(), indent=2, default=str))
         else:
             print(format_status_text())
+        return
+
+    if args.cmd == "plan-status":
+        from datetime import datetime, timezone
+        from pathlib import Path
+
+        from tollgate.paths import pin_data_home_env
+        from tollgate.provider_ops import plan_status as ps
+
+        pin_data_home_env()
+        log = Path(args.log).expanduser() if args.log else None
+        if args.claude_statusline:
+            snap = ps.claude_statusline(json.loads(sys.stdin.read() or "{}"))
+            if snap["windows"]:
+                ps.append_log([snap], log)
+            print(" ".join(f"{w['window']}:{w['used_percent']:.0f}%" for w in snap["windows"]))
+            return
+        chosen = ps.PROVIDERS if args.provider == "all" else (args.provider,)
+        if args.evaluate:
+            since = datetime.fromisoformat(args.evaluate.replace("Z", "+00:00"))
+            since = since if since.tzinfo else since.replace(tzinfo=timezone.utc)
+            print(json.dumps(ps.evaluate_logs(chosen, since=since), indent=2, default=str))
+            return
+        rows = ps.collect(chosen, live=not args.no_live)
+        path = ps.append_log(rows, log)
+        print(json.dumps({"log": str(path), "snapshots": rows}, indent=2, default=str))
         return
 
     if args.cmd == "certificate":
