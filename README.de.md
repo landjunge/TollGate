@@ -34,9 +34,11 @@
 
 Die Familie umfasst **KiraBridge** für die Verbindung und direkte Computersteuerung, **ThreadDesk** für Projekte und Arbeitsstände, **4AllPass** für Zugänge und Schlüssel, **TollGate** für Nutzungsgrenzen und Budgets sowie **Agent Authority** für ausschließlich lesende Beobachtung und Nachweise. Jedes Werkzeug bleibt eigenständig. Die durchgängige gemeinsame Bedienung über natürliche Sprache ist ein Entwicklungsziel; einzelne Integrationen und Pläne sind nicht automatisch produktiv verfügbar.
 
-## Verständliche Kontrolle, auch ohne Maus und Tastatur
+## Verbrauch und Grenzen im Sprachablauf verstehen
 
-KiraBridge richtet sich unter anderem an Menschen mit Behinderungen oder eingeschränkter Mobilität, die den Computer möglichst selbstständig über Sprache nutzen möchten. TollGate soll in diesem Zusammenspiel Grenzen und Stopps verständlich machen, damit nicht erst eine komplizierte Oberfläche bedient werden muss, um den Verbrauch eines Agentenauftrags zu verstehen. Nachvollziehbare Warnungen und eindeutige Entscheidungen sind Teil einer verlässlichen, barriereärmeren Bedienung. Dabei ersetzt Sprache keine Zugriffsprüfung oder menschliche Entscheidung über wichtige Kosten und Aktionen.
+**Die natürliche Sprachbedienung von Computer und KI-Werkzeugen für alle ist das übergreifende Ziel der NetzwerkPunkt-Familie.** KiraBridge vermittelt die Aufträge, während TollGate bei angeschlossenen Aufrufen Verbrauch, Warnungen, Budgetgrenzen und Stopps nachvollziehbar machen soll. Auch ein einfach formulierter Sprachauftrag muss sicher kontrollierbar bleiben.
+
+**Barrierearme Nutzung wird dabei mitgedacht, ist aber nicht das Hauptziel oder eine ausschließliche Zielgruppe.** Verständliche Rückmeldungen können Menschen mit Behinderungen oder eingeschränkter Mobilität besonders helfen, sind aber für alle sinnvoll, die per Sprache oder ohne komplizierte Oberflächen arbeiten. Sprache ersetzt weder Zugriffsprüfungen noch menschliche Entscheidungen über wichtige Kosten und Aktionen.
 
 **Entwicklungsstand:** TollGate ist kein Versprechen für eine fertige, providerübergreifende Verbrauchsüberwachung. Modell- und Tarifregeln, Resetzeitpunkte und Datenzugriffe müssen für jeden Anbieter und Produkttyp gesondert belegt werden. Insbesondere sind individuelle Grok-Team-Wochenkontingente pro Sitz und gemeinsam genutztes Zusatzguthaben getrennt zu modellieren; dokumentierte xAI-API-Endpunkte beweisen keinen entsprechenden Zugriff für Grok-Abonnements. Wir verbessern die Zuverlässigkeit und Transparenz fortlaufend, ohne unbestätigte Daten als live verfügbar auszugeben.
 
