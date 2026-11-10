@@ -28,7 +28,17 @@
 
 <p align="center"><strong>A safety gate for AI agents.</strong></p>
 
-**Part of the NetzwerkPunkt tool family:** KiraBridge connects ChatGPT to tools on your computer and is the central path for voice or chat control. The family includes **KiraBridge** (connection and control), **ThreadDesk** (projects and work history), **4AllPass** (accounts and credentials), **TollGate** (usage limits and budgets), and **Agent Authority** (observation and evidence only). Each tool also works in its own role. **Voice-driven integration across all five is the shared development goal:** existing connections and planned features are documented separately rather than presented as fully released.
+## The tool family and its limits
+
+**KiraBridge is the central voice and computer-control path for the NetzwerkPunkt tool family.** With the right permissions it can open applications, change windows, write notes, enter text directly and use keyboard shortcuts. **TollGate serves a different purpose:** it helps apply safety and budget limits so that a convenient spoken request does not lead to uncontrolled retries, hidden usage or unexpected costs.
+
+The family includes **KiraBridge** for connectivity and direct computer control, **ThreadDesk** for projects and work history, **4AllPass** for credentials and keys, **TollGate** for usage limits and budgets, and **Agent Authority** for read-only observation and evidence. Each tool remains independent. Seamless control of the whole family through natural language is a development goal; individual integrations must be verified rather than assumed.
+
+## Understandable controls for accessibility
+
+KiraBridge is being developed in part for people with disabilities or limited mobility who may benefit from operating a computer through speech. TollGate's role in that workflow is to make usage limits, stops and warnings understandable without requiring complex mouse or keyboard interactions. Accessible operation still needs clear confirmation for consequential actions, and voice commands never bypass permissions or cost controls.
+
+**Development status:** TollGate should not be mistaken for a finished cross-provider usage-monitoring system. Plan rules, reset times and access to usage data require separate verification for each provider and product. For Grok Team, individual weekly seat allowances and shared team add-on credits must be modeled separately. xAI API usage endpoints do not establish that the same data is available for Grok subscriptions. We continue improving reliability and visibility without presenting unverified data as live.
 
 TollGate checks connected model and tool calls before they execute. It helps stop repeated calls, limit usage and explain decisions.
 
