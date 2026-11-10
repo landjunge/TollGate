@@ -16,6 +16,7 @@ _TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Tollgate · Control Room</title>
+<link rel="stylesheet" href="/static/np/networkpunkt-appbar.css"/>
 <style>
   /* Local versioned NetzwerkPunkt basis; no CDN or new UI framework. */
   __NP_CSS__
@@ -33,6 +34,8 @@ _TEMPLATE = r"""<!DOCTYPE html>
     --text-lg: var(--np-heading); --text-xl: var(--np-title);
     --font: var(--np-font); --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
+  /* ThreadDesk look; TollGate brand contours instead of white edges. */
+  :root { --brand: #e77745; --line2: var(--brand); --np-focus: var(--brand); }
   :focus-visible { outline: 2px solid var(--np-focus); outline-offset: 3px; }
   .control-scope { border-left: 2px solid var(--warn); padding: .6rem .9rem; }
   @media (prefers-reduced-motion: reduce) {
@@ -407,6 +410,13 @@ _TEMPLATE = r"""<!DOCTYPE html>
   #secBanner.bad {
     background: var(--bad-dim); color: var(--bad); border-color: var(--bad);
   }
+  header { flex-wrap: wrap; }
+  .header-right { min-width: 0; max-width: 100%; }
+  .auth-bar { max-width: 100%; }
+  .auth-bar input { width: 5rem; min-width: 0; }
+  /* Brand contours (after the component rules). */
+  .card, .auth-bar, .badge, .lang-switch { border-color: var(--brand); }
+  .np-appbar-button:focus-visible { outline-color: var(--np-text); }
 </style>
 </head>
 <body class="np-ui">
@@ -443,6 +453,7 @@ _TEMPLATE = r"""<!DOCTYPE html>
 <header>
   <div class="brand">{{ui.brand}} <em id="dayLabel"></em></div>
   <div class="header-right">
+    <div class="np-appbar-host" data-product-header></div>
     <div class="lang-switch" role="group" aria-label="{{ui.lang_label}}">
       <a href="{{ui.lang_de_href}}" hreflang="de" lang="de" class="{{ui.lang_de_class}}">DE</a>
       <a href="{{ui.lang_en_href}}" hreflang="en" lang="en" class="{{ui.lang_en_class}}">EN</a>
@@ -1320,6 +1331,16 @@ loadAll = async function () {
 loadAll();
 onHash();
 setInterval(loadAll, 15000);
+</script>
+<script type="module">
+import {mountProductHeader} from "/static/np/networkpunkt-product-header.js";
+mountProductHeader(document.querySelector("[data-product-header]"), {selfId:"tollgate", locale:document.documentElement.lang,
+  readSelf:async ({signal}) => {
+    const r = await fetch("/v1/health", {signal, cache:"no-store"});
+    if (!r.ok) return {state:"error"};
+    const h = await r.json();
+    return {state:h.ok ? "confirmed" : "error", version:h.version};
+  }});
 </script>
 </body>
 </html>
