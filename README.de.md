@@ -28,6 +28,8 @@
 
 <p align="center"><strong>Eine Sicherheitsschranke für KI-Agenten.</strong></p>
 
+**Teil der NetzwerkPunkt-Werkzeugfamilie:** KiraBridge verbindet ChatGPT mit den Werkzeugen auf deinem Rechner und ist der zentrale Weg für die Bedienung per Sprache oder Chat. Zur Familie gehören **KiraBridge** (Verbindung und Steuerung), **ThreadDesk** (Projekte und Arbeitsstände), **4AllPass** (Zugänge und Schlüssel), **TollGate** (Nutzungsgrenzen und Budgets) und **Agent Authority** (ausschließlich Beobachtung und Nachweise). Die Werkzeuge bleiben eigenständig. **Die Verbindung aller fünf Werkzeuge über Sprache ist unser gemeinsames Ausbauziel:** Vorhandene Anbindungen und geplante Funktionen werden jeweils getrennt dokumentiert, nicht als schon vollständig fertig dargestellt.
+
 TollGate prüft angeschlossene Modell- und Werkzeugaufrufe, bevor sie ausgeführt werden. Es hilft, wiederholte Aufrufe zu stoppen, Verbrauch zu begrenzen und Entscheidungen nachzuvollziehen.
 
 **Quellstand: 1.0.12 · In Entwicklung · Python 3.11 oder neuer**
