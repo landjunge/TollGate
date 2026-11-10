@@ -624,6 +624,21 @@ def circuits_reset(
     return out
 
 
+@app.get("/static/np/{name}")
+def dashboard_static(name: str):
+    """Read-only shared header assets (fixed whitelist, no path traversal)."""
+    import re
+    from importlib.resources import files
+
+    from fastapi.responses import Response
+
+    if not re.fullmatch(r"(networkpunkt-appbar[a-z-]*\.(js|css)|networkpunkt-product-header\.js|np-appbar-[a-z0-9-]+-256\.png)", name):
+        raise HTTPException(status_code=404, detail="not found")
+    path = files("tollgate").joinpath("static/np", name)
+    types = {"js": "text/javascript", "css": "text/css", "png": "image/png"}
+    return Response(path.read_bytes(), media_type=types[name.rsplit(".", 1)[1]])
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard_page(request: Request) -> HTMLResponse:
     """Human-readable control plane (no SPA build).

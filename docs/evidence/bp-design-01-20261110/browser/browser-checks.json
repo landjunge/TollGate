@@ -1,0 +1,77 @@
+{
+ "status": "passed",
+ "checks": [
+  {
+   "scheme": "dark",
+   "width": 1280,
+   "buttons": 5,
+   "hscroll": false,
+   "version": "v1.0.12",
+   "dialog": "ThreadDesk",
+   "focus_return": true,
+   "tab_next": true,
+   "card_border": "rgb(231, 119, 69)",
+   "errors": []
+  },
+  {
+   "scheme": "dark",
+   "width": 390,
+   "buttons": 5,
+   "hscroll": false,
+   "version": "v1.0.12",
+   "dialog": "ThreadDesk",
+   "focus_return": true,
+   "tab_next": true,
+   "card_border": "rgb(231, 119, 69)",
+   "errors": []
+  },
+  {
+   "scheme": "dark",
+   "width": 320,
+   "buttons": 5,
+   "hscroll": false,
+   "version": "v1.0.12",
+   "dialog": "ThreadDesk",
+   "focus_return": true,
+   "tab_next": true,
+   "card_border": "rgb(231, 119, 69)",
+   "errors": []
+  },
+  {
+   "scheme": "light",
+   "width": 1280,
+   "buttons": 5,
+   "hscroll": false,
+   "version": "v1.0.12",
+   "dialog": "ThreadDesk",
+   "focus_return": true,
+   "tab_next": true,
+   "card_border": "rgb(231, 119, 69)",
+   "errors": []
+  },
+  {
+   "scheme": "light",
+   "width": 390,
+   "buttons": 5,
+   "hscroll": false,
+   "version": "v1.0.12",
+   "dialog": "ThreadDesk",
+   "focus_return": true,
+   "tab_next": true,
+   "card_border": "rgb(231, 119, 69)",
+   "errors": []
+  },
+  {
+   "scheme": "light",
+   "width": 320,
+   "buttons": 5,
+   "hscroll": false,
+   "version": "v1.0.12",
+   "dialog": "ThreadDesk",
+   "focus_return": true,
+   "tab_next": true,
+   "card_border": "rgb(231, 119, 69)",
+   "errors": []
+  }
+ ]
+}
