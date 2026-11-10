@@ -629,6 +629,7 @@ def dashboard_static(name: str):
     """Read-only shared header assets (fixed whitelist, no path traversal)."""
     import re
     from importlib.resources import files
+
     from fastapi.responses import Response
 
     if not re.fullmatch(r"(networkpunkt-appbar[a-z-]*\.(js|css)|networkpunkt-product-header\.js|np-appbar-[a-z0-9-]+-256\.png)", name):
