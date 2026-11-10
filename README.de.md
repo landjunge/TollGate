@@ -28,7 +28,17 @@
 
 <p align="center"><strong>Eine Sicherheitsschranke für KI-Agenten.</strong></p>
 
-**Teil der NetzwerkPunkt-Werkzeugfamilie:** KiraBridge verbindet ChatGPT mit den Werkzeugen auf deinem Rechner und ist der zentrale Weg für die Bedienung per Sprache oder Chat. Zur Familie gehören **KiraBridge** (Verbindung und Steuerung), **ThreadDesk** (Projekte und Arbeitsstände), **4AllPass** (Zugänge und Schlüssel), **TollGate** (Nutzungsgrenzen und Budgets) und **Agent Authority** (ausschließlich Beobachtung und Nachweise). Die Werkzeuge bleiben eigenständig. **Die Verbindung aller fünf Werkzeuge über Sprache ist unser gemeinsames Ausbauziel:** Vorhandene Anbindungen und geplante Funktionen werden jeweils getrennt dokumentiert, nicht als schon vollständig fertig dargestellt.
+## Die Werkzeugfamilie und ihre Grenzen
+
+**KiraBridge ist der zentrale Weg zur Sprach- und Computersteuerung in der NetzwerkPunkt-Werkzeugfamilie.** Darüber lassen sich mit den nötigen Rechten Programme öffnen, Fenster wechseln, Notizen schreiben, Texte direkt eingeben und Shortcuts ausführen. **TollGate ergänzt diese Steuerung als Sicherheits- und Budgetgrenze:** Ein bequemer Sprachauftrag soll nicht zu unkontrollierten Wiederholungen, verdecktem Verbrauch oder überraschenden Kosten führen.
+
+Die Familie umfasst **KiraBridge** für die Verbindung und direkte Computersteuerung, **ThreadDesk** für Projekte und Arbeitsstände, **4AllPass** für Zugänge und Schlüssel, **TollGate** für Nutzungsgrenzen und Budgets sowie **Agent Authority** für ausschließlich lesende Beobachtung und Nachweise. Jedes Werkzeug bleibt eigenständig. Die durchgängige gemeinsame Bedienung über natürliche Sprache ist ein Entwicklungsziel; einzelne Integrationen und Pläne sind nicht automatisch produktiv verfügbar.
+
+## Verständliche Kontrolle, auch ohne Maus und Tastatur
+
+KiraBridge richtet sich unter anderem an Menschen mit Behinderungen oder eingeschränkter Mobilität, die den Computer möglichst selbstständig über Sprache nutzen möchten. TollGate soll in diesem Zusammenspiel Grenzen und Stopps verständlich machen, damit nicht erst eine komplizierte Oberfläche bedient werden muss, um den Verbrauch eines Agentenauftrags zu verstehen. Nachvollziehbare Warnungen und eindeutige Entscheidungen sind Teil einer verlässlichen, barriereärmeren Bedienung. Dabei ersetzt Sprache keine Zugriffsprüfung oder menschliche Entscheidung über wichtige Kosten und Aktionen.
+
+**Entwicklungsstand:** TollGate ist kein Versprechen für eine fertige, providerübergreifende Verbrauchsüberwachung. Modell- und Tarifregeln, Resetzeitpunkte und Datenzugriffe müssen für jeden Anbieter und Produkttyp gesondert belegt werden. Insbesondere sind individuelle Grok-Team-Wochenkontingente pro Sitz und gemeinsam genutztes Zusatzguthaben getrennt zu modellieren; dokumentierte xAI-API-Endpunkte beweisen keinen entsprechenden Zugriff für Grok-Abonnements. Wir verbessern die Zuverlässigkeit und Transparenz fortlaufend, ohne unbestätigte Daten als live verfügbar auszugeben.
 
 TollGate prüft angeschlossene Modell- und Werkzeugaufrufe, bevor sie ausgeführt werden. Es hilft, wiederholte Aufrufe zu stoppen, Verbrauch zu begrenzen und Entscheidungen nachzuvollziehen.
 
