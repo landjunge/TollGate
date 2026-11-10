@@ -34,9 +34,11 @@
 
 The family includes **KiraBridge** for connectivity and direct computer control, **ThreadDesk** for projects and work history, **4AllPass** for credentials and keys, **TollGate** for usage limits and budgets, and **Agent Authority** for read-only observation and evidence. Each tool remains independent. Seamless control of the whole family through natural language is a development goal; individual integrations must be verified rather than assumed.
 
-## Understandable controls for accessibility
+## Understanding usage and limits in voice workflows
 
-KiraBridge is being developed in part for people with disabilities or limited mobility who may benefit from operating a computer through speech. TollGate's role in that workflow is to make usage limits, stops and warnings understandable without requiring complex mouse or keyboard interactions. Accessible operation still needs clear confirmation for consequential actions, and voice commands never bypass permissions or cost controls.
+**Natural-language control of computers and AI tools for everyone is the overarching goal of the NetzwerkPunkt family.** KiraBridge relays requests while TollGate is intended to make usage, warnings, budget limits and stops understandable for connected calls. Even a simple spoken request must remain controllable.
+
+**Accessibility is intentionally considered as an additional benefit, not the primary purpose or an exclusive audience.** Understandable feedback can particularly help people with disabilities or reduced mobility, but it also benefits anyone working by voice or without complex interfaces. Spoken commands never bypass access checks or human decisions about consequential costs and actions.
 
 **Development status:** TollGate should not be mistaken for a finished cross-provider usage-monitoring system. Plan rules, reset times and access to usage data require separate verification for each provider and product. For Grok Team, individual weekly seat allowances and shared team add-on credits must be modeled separately. xAI API usage endpoints do not establish that the same data is available for Grok subscriptions. We continue improving reliability and visibility without presenting unverified data as live.
 
