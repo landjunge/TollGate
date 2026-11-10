@@ -404,6 +404,30 @@ CATALOG: dict[str, dict[str, str]] = {
         "de": "Import: Plan zeigen, ohne zu schreiben",
         "en": "import: show plan without writing",
     },
+    "cmd.plan_status": {
+        "de": "Tarif und Limits von Codex, Claude und Grok lesen (nur lesend, kein Modellaufruf)",
+        "en": "Read Codex, Claude and Grok plan and limits (read-only, no model call)",
+    },
+    "cmd.plan_status.provider": {
+        "de": "nur diesen Anbieter lesen",
+        "en": "read only this provider",
+    },
+    "cmd.plan_status.no_live": {
+        "de": "nur lokale Dateien, Codex app-server nicht fragen",
+        "en": "local files only, do not ask the Codex app-server",
+    },
+    "cmd.plan_status.evaluate": {
+        "de": "Prognose gegen echte Nutzungsbelege seit Zeitpunkt (ISO) prüfen",
+        "en": "check the forecast against real usage evidence since a time (ISO)",
+    },
+    "cmd.plan_status.statusline": {
+        "de": "Statusline-Eingabe von Claude Code lesen und protokollieren",
+        "en": "read and log the Claude Code statusline input",
+    },
+    "cmd.plan_status.log": {
+        "de": "Messprotokoll (JSONL), Vorgabe im TollGate-Datenordner",
+        "en": "measurement log (JSONL), default in the TollGate data folder",
+    },
     "cmd.report": {
         "de": "Täglicher Betriebsbericht — Nachweise für Protect · Route · Prove",
         "en": "Daily operator report — Protect · Route · Prove evidence",
