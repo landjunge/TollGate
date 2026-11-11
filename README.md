@@ -28,6 +28,20 @@
 
 <p align="center"><strong>A safety gate for AI agents.</strong></p>
 
+## Try one concrete use case: stop a tool loop
+
+**Problem:** An agent keeps retrying connected tool calls. **TollGate** can stop calls routed through its configured gateway; it cannot stop arbitrary terminal processes or guarantee your provider invoice.
+
+**Source-only Protect demo (Python 3.11+, use permitted under [LICENSE](LICENSE)):**
+
+```sh
+git clone https://github.com/landjunge/tollgate.git && cd tollgate
+python3 -m venv .venv && .venv/bin/pip install -e .
+./scripts/ten-minute.sh
+```
+
+You should see a **blocked tool loop** and a scorecard; the local dashboard is at `http://127.0.0.1:8787/dashboard`. No provider API key is required for this demo. [Detailed quickstart](docs/QUICKSTART.md) · [Product limits](docs/WORKFLOW-CONTROL.md). **No desktop installer is published.**
+
 ## The tool family and its limits
 
 **KiraBridge is the central voice and computer-control path for the NetzwerkPunkt tool family.** With the right permissions it can open applications, change windows, write notes, enter text directly and use keyboard shortcuts. **TollGate serves a different purpose:** it helps apply safety and budget limits so that a convenient spoken request does not lead to uncontrolled retries, hidden usage or unexpected costs.
