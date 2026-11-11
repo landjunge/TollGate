@@ -28,6 +28,20 @@
 
 <p align="center"><strong>Eine Sicherheitsschranke für KI-Agenten.</strong></p>
 
+## Ein konkreter Anwendungsfall: Werkzeugschleifen stoppen
+
+**Problem:** Ein KI-Agent wiederholt unkontrolliert Aufrufe angeschlossener Werkzeuge. **TollGate** kann Aufrufe über seinen eingerichteten Gateway stoppen; beliebige Terminalprozesse stoppt es nicht, und die tatsächliche Anbieterrechnung wird nicht garantiert begrenzt.
+
+**Protect-Demo aus dem Quellcode (Python 3.11+, Nutzung nur gemäß [LICENSE](LICENSE)):**
+
+```sh
+git clone https://github.com/landjunge/tollgate.git && cd tollgate
+python3 -m venv .venv && .venv/bin/pip install -e .
+./scripts/ten-minute.sh
+```
+
+Das Demo soll einen **blockierten Werkzeug-Loop** und eine Auswertung zeigen; das lokale Dashboard liegt unter `http://127.0.0.1:8787/dashboard`. Für diese Demo sind keine Anbieter-API-Schlüssel nötig. [Ausführlicher Schnellstart](docs/QUICKSTART.md) · [Funktionsgrenzen](docs/WORKFLOW-CONTROL.md). **Ein Desktop-Installer ist noch nicht veröffentlicht.**
+
 ## Die Werkzeugfamilie und ihre Grenzen
 
 **KiraBridge ist der zentrale Weg zur Sprach- und Computersteuerung in der NetzwerkPunkt-Werkzeugfamilie.** Darüber lassen sich mit den nötigen Rechten Programme öffnen, Fenster wechseln, Notizen schreiben, Texte direkt eingeben und Shortcuts ausführen. **TollGate ergänzt diese Steuerung als Sicherheits- und Budgetgrenze:** Ein bequemer Sprachauftrag soll nicht zu unkontrollierten Wiederholungen, verdecktem Verbrauch oder überraschenden Kosten führen.
