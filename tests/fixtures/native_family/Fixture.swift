@@ -8,10 +8,14 @@ struct Fixture {
         case "receipt":
             let data = FileHandle.standardInput.readDataToEndOfFile()
             print(FamilySwitch.outcome(forJSON: data, target: args[2], exitStatus: Int32(args[3])!).rawValue)
-        case "ipc":
+        case "ipc", "ipc-diagnostic":
+            let start = ProcessInfo.processInfo.systemUptime
             let result = await NativeIPC.run(executable: URL(fileURLWithPath: args[3]), arguments: Array(args.dropFirst(4)), timeout: Double(args[2])!)
-            let value: [String: Any] = ["confirmed": result?.confirmed ?? false, "status": result?.status ?? -999,
+            var value: [String: Any] = ["confirmed": result?.confirmed ?? false, "status": result?.status ?? -999,
                                        "text": String(decoding: result?.data ?? Data(), as: UTF8.self)]
+            if args[1] == "ipc-diagnostic" {
+                value["elapsed_ms"] = (ProcessInfo.processInfo.systemUptime - start) * 1000
+            }
             print(String(decoding: try JSONSerialization.data(withJSONObject: value), as: UTF8.self))
         case "responsive":
             let gate = FamilySwitchGate()

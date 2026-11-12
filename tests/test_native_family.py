@@ -6,6 +6,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -157,14 +158,73 @@ def test_native_ipc_bounds_output_and_timeout_without_replay(native_fixture):
                 os.kill(int(value["text"].strip()), 0)
 
 
-def test_native_ipc_does_not_wait_for_descendant_pipe_eof(native_fixture):
-    # Interpreter startup on this host exceeds 0.2s. Keep the descendant
-    # alive beyond the 1s watchdog; completion still cannot depend on EOF.
-    code = (
-        "import os,time; pid=os.fork(); time.sleep(2) if pid==0 else None; os._exit(0)"
+def test_native_ipc_does_not_wait_for_descendant_pipe_eof(
+    native_fixture, tmp_path, capsys
+):
+    # Keep the existing 1s IPC deadline and 2s pipe holder. The child publishes
+    # readiness before the leader writes a real receipt and exits. Thus UNKNOWN
+    # cannot be justified by failing to start the interpreter or losing output.
+    ready = tmp_path / "holder.json"
+    code = """import os,time,json,pathlib,sys
+leader=os.getpid()
+pid=os.fork()
+if pid==0:
+    marker=pathlib.Path(sys.argv[1]); pending=marker.with_suffix('.pending')
+    pending.write_text(json.dumps({'leader':leader,'holder':os.getpid()})); pending.replace(marker)
+    time.sleep(2); os._exit(0)
+while not pathlib.Path(sys.argv[1]).exists(): time.sleep(.001)
+print(sys.argv[2],flush=True)
+os._exit(0)
+"""
+    start = time.monotonic()
+    value = json.loads(
+        invoke(
+            native_fixture,
+            "ipc-diagnostic",
+            1,
+            sys.executable,
+            "-c",
+            code,
+            ready,
+            json.dumps(GOOD),
+        )
     )
-    value = json.loads(invoke(native_fixture, "ipc", 1, sys.executable, "-c", code))
-    assert value["confirmed"] is True and value["status"] == 0
+    diagnostic = {
+        "platform": sys.platform,
+        "receipt": value,
+        "wall_ms": (time.monotonic() - start) * 1000,
+    }
+    assert ready.is_file(), diagnostic
+    # Observe only this fresh fixture leader, never argv, stores or other agents.
+    if sys.platform == "linux":
+        leader = json.loads(ready.read_text())["leader"]
+        try:
+            state = next(
+                line
+                for line in Path(f"/proc/{leader}/status").read_text().splitlines()
+                if line.startswith("State:")
+            )
+        except FileNotFoundError:
+            state = "absent"
+        diagnostic["leader_kernel_state"] = state
+        assert state == "absent" or state.split()[1] in {"Z", "X"}, diagnostic
+    # Emit the full synthetic receipt even when pytest captures passing tests.
+    with capsys.disabled():
+        print(
+            "Native EOF diagnostic: " + json.dumps(diagnostic, sort_keys=True),
+            flush=True,
+        )
+    assert json.loads(value["text"]) == GOOD, diagnostic
+    # Native completion must occur while the holder still retains its pipe.
+    assert value["elapsed_ms"] < 2000, diagnostic
+    if sys.platform == "linux" and value["confirmed"] is False:
+        # corelibs Foundation may keep isRunning true until descendant EOF.
+        # A deadline without confirmed exit is UNKNOWN, never a focused result.
+        assert 1000 <= value["elapsed_ms"] < 2000, diagnostic
+        assert value["status"] in {-999, 0}, diagnostic
+    else:
+        # macOS MUST still confirm the positive EOF case. No skip or relaxation.
+        assert value["confirmed"] is True and value["status"] == 0, diagnostic
 
 
 def test_main_actor_remains_responsive_and_unknown_stays_blocked(native_fixture):
