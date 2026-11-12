@@ -71,7 +71,7 @@ Es gibt keinen veröffentlichten Desktop-Installer. Das [Ankündigungsrelease](h
 - **Prove:** Ausfall- und Wiederanlauf-Simulationen mit Berichten über das geprüfte Setup.
 - **Anbindung:** OpenAI-kompatibles Gateway, MCP und n8n; deutsch- und englischsprachige Bedienung.
 
-Der lokale Auftragskontrollkern ergänzt dauerhafte Reservierungen und Stopps für ausdrücklich angeschlossene Adapter. Die Abnahme mit synthetischen Adaptern ist kein fertig eingerichteter KiraBridge-/4AllPass-Produktionsbetrieb. Kostenschätzungen sind keine Anbieterrechnungen und garantieren kein Kostenlimit für beliebige Terminalagenten.
+Der lokale Auftragskontrollkern ergänzt dauerhafte Reservierungen und Stopps für ausdrücklich angeschlossene Adapter. Auf diesem Budget- und Wiederholungsjournal werden strukturierte Agentenereignisse nach Auftrag, Sitzung und Ereignis idempotent zugeordnet: Eine Auftrags-Task-ID ist keine Anbieter-Sitzungs-ID, und ein unbekannter oder gestoppter Ausgang blockiert weitere Dispatches, statt sie erneut auszuführen. Das ist lokale Ereigniszuordnung, kein Live-Anbieter und keine universelle Kostengrenze. Die Abnahme mit synthetischen Adaptern ist kein fertig eingerichteter KiraBridge-/4AllPass-Produktionsbetrieb. Kostenschätzungen sind keine Anbieterrechnungen und garantieren kein Kostenlimit für beliebige Terminalagenten.
 
 **Grenze:** „Freeze“ blockiert neue angeschlossene Aufrufe. Es beendet keine beliebigen Prozesse und macht bereits ausgelöste Wirkungen nicht rückgängig. [Auftragskontrolle](docs/WORKFLOW-CONTROL.md) · [Prozessstopps](docs/WORKFLOW-PROCESS-STOP.md).
 
