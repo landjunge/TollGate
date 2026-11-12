@@ -194,6 +194,24 @@ def test_sensitive_sentinel_never_leaks(tmp_path):
     assert obs["event"]["has_evidence_ref"] is True  # presence only, never the text
 
 
+def test_reason_code_free_text_is_mapped_to_unknown(tmp_path):
+    control, journal, guard = setup(tmp_path)
+    control.reserve(identity("a"), QUOTE)
+    guard.dispatch(identity("a"), lambda: None)
+    # a known normal reason code is preserved verbatim
+    obs = observe_workflow(control, journal, SCOPE)
+    assert obs["attempts"][0]["reason_code"] == "AWAITING_FINAL_EVIDENCE"
+
+    # adversarial: a manipulated journal smuggles free text into reason_code
+    sentinel = "SECRET-SENTINEL-free-text-reason-code"
+    with control._transaction(SCOPE) as (path, data):
+        data["attempts"]["a"]["reason_code"] = sentinel
+        control._commit(path, data)
+    obs2 = observe_workflow(control, journal, SCOPE)
+    assert obs2["attempts"][0]["reason_code"] == "unknown"
+    assert sentinel not in repr(obs2)
+
+
 def test_missing_cost_never_zero(tmp_path):
     control, journal, guard = setup(tmp_path)
     control.reserve(identity("a"), QUOTE)

@@ -5,8 +5,10 @@ Composes the existing read surfaces — ``WorkflowControl.status`` and the
 ``AgentEventJournal`` readers — into a single allowlisted observation. This
 module never reserves/releases/dispatches/settles/stops and never rewrites a
 journal. Only safe fields leave it (ids, states, counters); prompts, answers,
-tool args, keys and free native metadata are never exposed, and free-text
-``evidence_ref``/``stop_reason`` values are replaced by a safe presence flag.
+tool args, keys and free native metadata are never exposed. ``stop_reason`` is
+omitted entirely, ``evidence_ref`` is reduced to a presence flag, and an attempt
+``reason_code`` is mapped through a strict allowlist (unknown codes are reported
+as ``unknown``, never as injected free text).
 
 Honesty guarantees:
 
@@ -58,6 +60,31 @@ _EVENT_FIELDS = (
 )
 _USAGE_KINDS = ("measured", "observed", "estimated", "unknown")
 
+# Strict allowlist of the reason codes ``workflow_control`` can persist. A
+# manipulated journal could otherwise smuggle free text (prompts/tokens/keys)
+# through this field, which Control._validate does not constrain.
+_KNOWN_REASON_CODES = frozenset(
+    {
+        "OK",
+        "WORKFLOW_STOPPED",
+        "ACCOUNTING_MISMATCH",
+        "BUDGET_EXCEEDED",
+        "UNBOUNDED_COST",
+        "ADMISSION_DENIED",
+        "DAY_LIMIT_DENIED",
+        "AWAITING_FINAL_EVIDENCE",
+        "OUTCOME_UNKNOWN",
+        "PROCESS_START_UNKNOWN",
+        "PROCESS_SPAWN_OBSERVED",
+    }
+)
+
+
+def _safe_reason_code(code: Any) -> str:
+    if isinstance(code, str) and code in _KNOWN_REASON_CODES:
+        return code
+    return "unknown"
+
 
 def _source(authenticated: bool = False) -> dict[str, Any]:
     return {
@@ -69,7 +96,9 @@ def _source(authenticated: bool = False) -> dict[str, Any]:
 def _project_attempt(attempt: dict[str, Any] | None) -> dict[str, Any]:
     if not attempt:
         return {k: None for k in _ATTEMPT_FIELDS}
-    return {k: attempt.get(k) for k in _ATTEMPT_FIELDS}
+    out = {k: attempt.get(k) for k in _ATTEMPT_FIELDS}
+    out["reason_code"] = _safe_reason_code(attempt.get("reason_code"))
+    return out
 
 
 def _project_budget(budget: dict[str, Any]) -> dict[str, Any]:
