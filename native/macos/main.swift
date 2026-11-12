@@ -36,22 +36,47 @@ func findFreeLoopbackPort() -> Int32 {
     return Int32(UInt16(bigEndian: addr.sin_port))
 }
 
-/// Resolve the TollGate server command. Prefers an existing launcher, then a
-/// repo venv, then a plain module run. Callers pin the source; the host never
-/// installs or overwrites anything.
+/// Resolve the TollGate server command. Prefers the bundled backend source plus
+/// an existing python runtime (independent of the dev worktree), then an
+/// installed launcher, then any python3 with an installed tollgate. The host
+/// never installs or overwrites anything.
+func candidatePython() -> String? {
+    let candidates = [
+        "/usr/local/bin/python3.11",    // Homebrew Intel
+        "/opt/homebrew/bin/python3.11", // Homebrew Apple Silicon
+        "/usr/local/bin/python3",
+        "/usr/bin/python3",
+    ]
+    for path in candidates where FileManager.default.isExecutableFile(atPath: path) {
+        return path
+    }
+    return nil
+}
+
+func bundledBackendSrc() -> URL? {
+    guard let resource = Bundle.main.resourceURL else { return nil }
+    let src = resource.appendingPathComponent("backend/src")
+    var isDir: ObjCBool = false
+    if FileManager.default.fileExists(atPath: src.appendingPathComponent("tollgate").path,
+                                      isDirectory: &isDir), isDir.boolValue {
+        return src
+    }
+    return nil
+}
+
 func resolveServeCommand() -> (String, [String], [String: String])? {
-    let home = FileManager.default.homeDirectoryForCurrentUser
-    let launcher = home.appendingPathComponent(".local/bin/tollgate")
+    // 1. Bundled backend source + an existing python runtime (no dev-WT dependency).
+    if let src = bundledBackendSrc(), let py = candidatePython() {
+        return (py, ["-m", "tollgate", "serve"], ["PYTHONPATH": src.path])
+    }
+    // 2. Existing installed launcher.
+    let launcher = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".local/bin/tollgate")
     if FileManager.default.isExecutableFile(atPath: launcher.path) {
         return (launcher.path, ["serve"], [:])
     }
-    // Repo venv next to the app's resources, when present.
-    let repo = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-    if let repo, FileManager.default.isExecutableFile(atPath: repo.appendingPathComponent("tollgate/.venv/bin/python").path) {
-        return (repo.appendingPathComponent("tollgate/.venv/bin/python").path, ["-m", "tollgate", "serve"], ["PYTHONPATH": repo.appendingPathComponent("tollgate/src").path])
-    }
-    if FileManager.default.isExecutableFile(atPath: "/usr/bin/python3") {
-        return ("/usr/bin/python3", ["-m", "tollgate", "serve"], [:])
+    // 3. Any python3 with an installed tollgate (best-effort).
+    if let py = candidatePython() {
+        return (py, ["-m", "tollgate", "serve"], [:])
     }
     return nil
 }
