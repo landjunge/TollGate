@@ -404,7 +404,42 @@ def test_replay_after_missing_write_reports_missing(tmp_path, monkeypatch):
     r2 = g.dispatch(identity("a"), lambda: sent.append(2))
     assert sent == [1]
     assert r2["outcome"] == "REPLAYED" and r2["recorded"] is False
-    assert r2["record_error"] == "EVENT_MISSING"
+    assert r2["record_error"] == "EVENT_NOT_FOUND"
+
+
+def test_replay_read_lock_timeout_preserves_stored_attempt(tmp_path, monkeypatch):
+    g = setup(tmp_path)
+    g.control.reserve(identity("a"), QUOTE)
+    sent = []
+    r1 = g.dispatch(identity("a"), lambda: sent.append(1))
+    assert r1["outcome"] == "SENT" and sent == [1]
+
+    def get_timeout(ref):
+        raise TimeoutError("event journal lock timeout")
+
+    monkeypatch.setattr(g.journal, "get", get_timeout)
+    r2 = g.dispatch(identity("a"), lambda: sent.append(2))
+    assert sent == [1]  # no second callback
+    assert r2["outcome"] == "REPLAYED"
+    assert r2["state"] == "OUTCOME_UNKNOWN"  # stored control state preserved
+    assert r2["attempt"]["attempt_id"] == "a"
+    assert r2["recorded"] is False and r2["record_error"] == "EVENT_READ_FAILED"
+
+
+def test_replay_read_oserror_preserves_stored_attempt(tmp_path, monkeypatch):
+    g = setup(tmp_path)
+    g.control.reserve(identity("a"), QUOTE)
+    sent = []
+    g.dispatch(identity("a"), lambda: sent.append(1))
+
+    def get_oserror(ref):
+        raise OSError("event journal read error")
+
+    monkeypatch.setattr(g.journal, "get", get_oserror)
+    r2 = g.dispatch(identity("a"), lambda: sent.append(2))
+    assert sent == [1]
+    assert r2["outcome"] == "REPLAYED"
+    assert r2["recorded"] is False and r2["record_error"] == "EVENT_READ_FAILED"
 
 
 def test_stop_uses_actual_id_and_is_idempotent(tmp_path):

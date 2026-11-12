@@ -209,8 +209,7 @@ class WorkflowGuard:
                     # Replay: no callback ran. Never fabricate SENT/ALLOW; report
                     # whether the prior attribution is actually present.
                     outcome = "REPLAYED"
-                    recorded = self._has_event(keys)
-                    rec_error = "" if recorded else "EVENT_MISSING"
+                    recorded, rec_error = self._has_event(keys)
 
                 return {
                     "ok": True,
@@ -306,14 +305,18 @@ class WorkflowGuard:
                 return "UNRESOLVED_UNKNOWN"
         return ""
 
-    def _has_event(self, keys: dict[str, str]) -> bool:
+    def _has_event(self, keys: dict[str, str]) -> tuple[bool, str]:
+        """Best-effort attribution read; a lock timeout or OSError must not turn a
+        stored control replay into ``GUARD_BUSY``. Returns (present, safe_code)."""
         try:
             self.journal.get(
                 AgentEventRef(keys["job_id"], keys["session_id"], keys["event_id"])
             )
-            return True
-        except AgentEventError:
-            return False
+            return True, ""
+        except AgentEventError as exc:
+            return False, exc.code
+        except Exception:  # noqa: BLE001 — post-effect attribution read, no leak
+            return False, "EVENT_READ_FAILED"
 
     def _safe_record(self, event: AgentEvent) -> tuple[bool, str]:
         """Attribution is best-effort and runs after the effect; never raises a
