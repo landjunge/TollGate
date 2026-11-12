@@ -1332,9 +1332,30 @@ loadAll();
 onHash();
 setInterval(loadAll, 15000);
 </script>
+<script>
+// Native family-switch bridge: only the catalog id crosses to the host. The
+// host supplies its own PID and the fixed argv; the web never sends a URL,
+// PID or argv.
+window.__tgFamilySwitchResolvers = {};
+window.__tgFamilySwitchResolve = function(requestId, outcome) {
+  var resolve = window.__tgFamilySwitchResolvers[requestId];
+  if (resolve) { delete window.__tgFamilySwitchResolvers[requestId]; resolve(outcome); }
+};
+window.__tgFamilySwitch = function(appId) {
+  var handler = (window.webkit && window.webkit.messageHandlers &&
+                 window.webkit.messageHandlers.familySwitch) || null;
+  if (!handler) return Promise.resolve("missing");
+  return new Promise(function(resolve) {
+    var requestId = "fs-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+    window.__tgFamilySwitchResolvers[requestId] = resolve;
+    handler.postMessage({requestId: requestId, appId: appId});
+  });
+};
+</script>
 <script type="module">
 import {mountProductHeader} from "/static/np/networkpunkt-product-header.js";
 mountProductHeader(document.querySelector("[data-product-header]"), {selfId:"tollgate", locale:document.documentElement.lang,
+  openTarget: (appId) => window.__tgFamilySwitch(appId),
   readSelf:async ({signal}) => {
     const r = await fetch("/v1/health", {signal, cache:"no-store"});
     if (!r.ok) return {state:"error"};
@@ -1352,17 +1373,26 @@ _MARKER = re.compile(r"\{\{([\w.]+)\}\}")
 # Diese Marken setzt dashboard_html() selbst zusammen; sie stehen nicht im
 # Katalog. Die Liste steht hier und nicht im Test, damit sie nur an einer
 # Stelle gepflegt wird.
-COMPOSED_MARKERS = frozenset({
-    "ui.html_lang",
-    "ui.lang_label", "ui.lang_de_class", "ui.lang_en_class",
-    "ui.lang_de_href", "ui.lang_en_href",
-    "ui.register_label", "ui.register_plain_class", "ui.register_expert_class",
-    "ui.register_plain_href", "ui.register_expert_href",
-})
+COMPOSED_MARKERS = frozenset(
+    {
+        "ui.html_lang",
+        "ui.lang_label",
+        "ui.lang_de_class",
+        "ui.lang_en_class",
+        "ui.lang_de_href",
+        "ui.lang_en_href",
+        "ui.register_label",
+        "ui.register_plain_class",
+        "ui.register_expert_class",
+        "ui.register_plain_href",
+        "ui.register_expert_href",
+    }
+)
 
 
-def dashboard_html(language: str = i18n.DEFAULT_LANGUAGE,
-                   register: str = i18n.DEFAULT_REGISTER) -> str:
+def dashboard_html(
+    language: str = i18n.DEFAULT_LANGUAGE, register: str = i18n.DEFAULT_REGISTER
+) -> str:
     """Das Control Room in einer Sprache und auf einer Sprachebene.
 
     Die Marken werden hier ersetzt, nicht im Browser. Damit steht der Text
@@ -1394,4 +1424,8 @@ def dashboard_html(language: str = i18n.DEFAULT_LANGUAGE,
         return i18n.translate(key, code, level)
 
     return _MARKER.sub(pick, _TEMPLATE).replace(
-        "__NP_CSS__", files("tollgate").joinpath("static/networkpunkt.css").read_text(encoding="utf-8"))
+        "__NP_CSS__",
+        files("tollgate")
+        .joinpath("static/np/networkpunkt.css")
+        .read_text(encoding="utf-8"),
+    )

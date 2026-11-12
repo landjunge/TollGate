@@ -85,6 +85,8 @@ Mit Nutzungserlaubnis und Python 3.11 oder neuer:
 
 Die Protect-Demo braucht keine Anbieter-Schlüssel. Prüfe anschließend im lokalen Dashboard, warum ein Aufruf erlaubt oder blockiert wurde. Für echte Modellaufrufe und Weiterleitung brauchst du eigene Anbieterzugänge. [Schnellstart](docs/QUICKSTART.md).
 
+Unter macOS gibt es einen AppKit-Entwicklungshost mit Familienwechsel ausschließlich über Katalog-IDs. Die Bridge bindet den eigenen Mainframe und exakten Loopback-Origin; begrenztes IPC läuft außerhalb des UI-Threads, UNKNOWN wird nie automatisch wiederholt. Close erhält Backend und Zustand. Das gepinnte gemeinsame Modul ist 1.2.2. Das Bundle enthält Backend-Sources und **benötigt eine vorhandene Python-3.11+-Umgebung mit den Projektabhängigkeiten**; es enthält keine eigenständige Runtime und installiert keine Abhängigkeiten. Kandidatenbuilds bewahren ältere Ausgaben, nutzen das Original-ICNS und verlangen saubere Sources sowie strikte Signaturprüfung. Siehe [native Voraussetzungen und Belege](native/macos/README.md). Installation und echte Fünf-App-Abnahme bleiben getrennt; der Host vergibt keine zusätzlichen Budget-/Stop-/Provider-Rechte.
+
 ## Geplante Zusammenarbeit
 
 Die fünf Produkte bleiben eigenständig. Geplant ist ein gemeinsamer Ablauf mit **KiraBridge als Kommunikationszentrale**:

@@ -5,7 +5,7 @@ import {APP_CATALOG} from "./networkpunkt-appbar-catalog.js";
 const hosts = new WeakMap();
 
 export function mountProductHeader(element, {selfId, locale = "de", selfRoute = "/", readSelf,
-  targets = {}, navigate = url => element.ownerDocument.defaultView.location.assign(url)} = {}) {
+  openTarget, targets = {}, navigate = url => element.ownerDocument.defaultView.location.assign(url)} = {}) {
   if (!APP_CATALOG.some(app => app.id === selfId)) throw new TypeError("Unknown host product");
   hosts.get(element)?.destroy();
   const doc = element.ownerDocument, win = doc.defaultView;
@@ -46,7 +46,14 @@ export function mountProductHeader(element, {selfId, locale = "de", selfRoute = 
     } catch { return null; }
   }
   const bar = mountAppBar(element, {selfId, locale:language, peers:{[selfId]:expected},
+    // Native broker: 30 s plus 1 s for host dispatch/receipt delivery. Status TTLs stay separate.
+    openTimeoutMs:typeof openTarget === "function" ? 31000 : 2000,
     onOpen:async ({appId, actionId}) => {
+      if (typeof openTarget === "function") {
+        // Only a catalog ID crosses the host boundary; never a URL, argv or PID.
+        const outcome = await openTarget(appId);
+        return {actionId, outcome:["opened", "focused", "missing", "failed", "uncertain"].includes(outcome) ? outcome : "uncertain"};
+      }
       const url = route(appId === selfId ? selfRoute : targets[appId], appId === selfId);
       if (!url) { missing(appId); return {actionId, outcome:"missing"}; }
       if (appId === selfId && new URL(url).pathname === win.location.pathname) {

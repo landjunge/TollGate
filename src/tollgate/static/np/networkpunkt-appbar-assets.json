@@ -1,0 +1,128 @@
+{
+  "v": 1,
+  "version": "1.2.2",
+  "files": [
+    {
+      "appId": "kirabridge",
+      "file": "np-appbar-kirabridge-dark-256.png",
+      "source": "assets/design/icons/dark/KiraBridge-dark-256.png",
+      "sourceRepository": "KiraBridge",
+      "sourcePin": "d12838ae97c7efcc053c45c3bc9fba5e78f5fe5d",
+      "sha256": "df48979210f0d2fda32ca1c704f818f8c57fa40cdcf8cc7f682616263f7a8f75",
+      "dimensions": [
+        256,
+        256
+      ],
+      "viewport": [
+        14,
+        26,
+        214,
+        204
+      ],
+      "derivation": "Original bytes unchanged; CSS viewport encloses original colored frame; no raster edit",
+      "color": "#fc63ad",
+      "colorSource": "kirabridge:assets/design/icons/dark/KiraBridge-dark-256.png#original-frame-color; dominant original colored-frame pixel, presentation accent only",
+      "originalLocalRepository": "/Users/landjunge/KiraBridge",
+      "originalSource": "assets/design/originals/KiraBridge-dark.png",
+      "originalSha256": "11ceabd0363001f95ec0e23e3940c8e62d20f40388a151348387f5b1c215fd3b"
+    },
+    {
+      "appId": "threaddesk",
+      "file": "np-appbar-threaddesk-dark-256.png",
+      "source": "assets/design/icons/dark/ThreadDesk-dark-256.png",
+      "sourceRepository": "threaddesk",
+      "sourcePin": "40fac387582700ce56c42b856dfe2405f942c012",
+      "sha256": "37acc1808d685b19a17ad6aa50919304877c44730afe3c105771508cb00e12a7",
+      "dimensions": [
+        256,
+        256
+      ],
+      "viewport": [
+        35,
+        40,
+        186,
+        176
+      ],
+      "derivation": "Original bytes unchanged; CSS viewport encloses original colored frame; no raster edit",
+      "color": "#b99cff",
+      "colorSource": "threaddesk:brand/README.md",
+      "originalLocalRepository": "/Users/landjunge/threaddesk",
+      "originalSource": "assets/design/originals/ThreadDesk-dark.png",
+      "originalSha256": "279f1890239390b11909227836ea2c1dc8e6f70ce1b19354b5dac29a81fc1b9e"
+    },
+    {
+      "appId": "4allpass",
+      "file": "np-appbar-4allpass-dark-256.png",
+      "source": "brand/ap4/dark/4allpass-dark-256.png",
+      "sourceRepository": "4AllPass",
+      "sourcePin": "0b66a2fda7fcc831762e732eb20084137fa6029d",
+      "sha256": "62019c4aab70164b092c9e6543e49aaa6f46a86400a0fd258bab7b81ead9406a",
+      "dimensions": [
+        256,
+        256
+      ],
+      "viewport": [
+        33,
+        38,
+        190,
+        180
+      ],
+      "derivation": "Original bytes unchanged; CSS viewport encloses original colored frame; no raster edit",
+      "color": "#6be4f2",
+      "colorSource": "4allpass:brand/ap4/dark/4allpass-dark-256.png#original-frame-color; dominant original colored-frame pixel, presentation accent only",
+      "originalLocalRepository": "/Users/landjunge/4AllPass",
+      "originalSource": "brand/ap4/4allpass-dark.png",
+      "originalSha256": "e34a5925bee7a35434145646c8fca497edc26eef015b3e88a40411e006bbb094"
+    },
+    {
+      "appId": "tollgate",
+      "file": "np-appbar-tollgate-dark-256.png",
+      "source": "assets/design/icons/dark/TollGate-dark-256.png",
+      "sourceRepository": "tollgate",
+      "sourcePin": "6676bcfc69f85e77fec6192bc51ad8f9c0b26740",
+      "sha256": "98e90b668ed712361a05ae16efaa0768f6abd71e4bde40d9ece9ca59b018aed5",
+      "dimensions": [
+        256,
+        256
+      ],
+      "viewport": [
+        35,
+        40,
+        186,
+        176
+      ],
+      "derivation": "Original bytes unchanged; CSS viewport encloses original colored frame; no raster edit",
+      "color": "#e77745",
+      "colorSource": "tollgate:brand/README.md",
+      "originalLocalRepository": "/Users/landjunge/tollgate",
+      "originalSource": "assets/design/originals/TollGate-dark.png",
+      "originalSha256": "80ee4d9a63f960e16a47504e2c2e46cd399eaf66997eb230e85deab82c249751"
+    },
+    {
+      "appId": "agent-authority",
+      "file": "np-appbar-agent-authority-dark-256.png",
+      "source": "assets/design/icons/dark/Agent-Authority-dark-256.png",
+      "sourceRepository": "agent-authority-lab",
+      "sourcePin": "75fb14e99a50b967b8624191f0178963c433fbd9",
+      "sha256": "ddbde6d384d6e78bb727f5d68552c1f18c46db1535f885c91a11b8ac5da7bbe9",
+      "dimensions": [
+        256,
+        256
+      ],
+      "viewport": [
+        14,
+        23,
+        219,
+        211
+      ],
+      "derivation": "Original bytes unchanged; CSS viewport encloses original colored frame; no raster edit",
+      "color": "#3b78fc",
+      "colorSource": "agent-authority:assets/design/icons/dark/Agent-Authority-dark-256.png#original-frame-color; dominant original colored-frame pixel, presentation accent only",
+      "originalLocalRepository": "/Users/landjunge/agent-authority-lab",
+      "originalSource": "assets/design/originals/Agent-Authority-dark.png",
+      "originalSha256": "eee8cb4c22f79db51730d1e674b8deaa39d1a1176a4030e13e2fb1dbe362cfff"
+    }
+  ],
+  "blocked": {},
+  "colorBlockers": {}
+}
