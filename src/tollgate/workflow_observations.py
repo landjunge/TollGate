@@ -4,8 +4,9 @@ Read-only, minimized workflow observation (projection).
 Composes the existing read surfaces — ``WorkflowControl.status`` and the
 ``AgentEventJournal`` readers — into a single allowlisted observation. This
 module never reserves/releases/dispatches/settles/stops and never rewrites a
-journal. Only safe fields leave it (ids, states, counters, evidenced refs);
-prompts, answers, tool args, keys and free native metadata are never exposed.
+journal. Only safe fields leave it (ids, states, counters); prompts, answers,
+tool args, keys and free native metadata are never exposed, and free-text
+``evidence_ref``/``stop_reason`` values are replaced by a safe presence flag.
 
 Honesty guarantees:
 
@@ -13,9 +14,10 @@ Honesty guarantees:
   (the local journals are otherwise unpinned).
 * measured / observed / estimated / unknown usage stay separate, and missing or
   unknown cost is reported as ``None`` — never as ``0``.
-* a task id is a workflow task identity, never a provider session; the read
-  projection exposes ``attempt_id`` from control status, and ``task_id`` only
-  when a caller supplies the session key for a specific attempt.
+* a task id is a workflow task identity, never a provider session.
+* control state and the event journal are read from independent journals and are
+  reported unlinked (the control projection omits task id, so no task/actor
+  binding check is possible read-only); no cross-attribution is asserted.
 """
 
 from __future__ import annotations
@@ -53,8 +55,6 @@ _EVENT_FIELDS = (
     "tokens_out",
     "cost_microusd",
     "decision",
-    "stop_reason",
-    "evidence_ref",
 )
 _USAGE_KINDS = ("measured", "observed", "estimated", "unknown")
 
@@ -93,12 +93,17 @@ def _project_usage(summary_usage: dict[str, Any]) -> dict[str, Any]:
 
 
 def _project_event(event: dict[str, Any] | None) -> dict[str, Any]:
+    out: dict[str, Any] = {k: None for k in _EVENT_FIELDS}
+    out["has_evidence_ref"] = False
     if not event:
-        return {k: None for k in _EVENT_FIELDS}
-    out = {k: event.get(k) for k in _EVENT_FIELDS}
+        return out
+    for k in _EVENT_FIELDS:
+        out[k] = event.get(k)
     # Unknown or missing usage is never reported as a 0 cost.
     if out["usage_kind"] not in ("measured", "observed", "estimated"):
         out["cost_microusd"] = None
+    # Free-text evidence_ref is never exported; only its presence.
+    out["has_evidence_ref"] = bool(event.get("evidence_ref"))
     return out
 
 
@@ -116,7 +121,6 @@ def observe_workflow(
         "job_id": job_id,
         "source": _source(),
         "stopped": bool(status.get("stopped")),
-        "stop_reason": summary.get("stop_reason") or None,
         "attempts": [_project_attempt(a) for a in status.get("attempts") or []],
         "budgets": [_project_budget(b) for b in status.get("budgets") or []],
         "usage": _project_usage(summary.get("usage") or {}),
@@ -132,11 +136,15 @@ def observe_attempt(
     task_id: str,
     attempt_id: str,
 ) -> dict[str, Any]:
-    """Attempt-level read-only observation.
+    """Attempt-level read-only observation, control and event reported unlinked.
 
-    ``task_id`` is a workflow task identity (the event-journal session key), never
-    a provider session. Raises (fail-closed) on corrupt journals; a genuinely
-    missing event is reported as an empty ``event`` projection.
+    ``task_id`` is the event-journal session key (a workflow task), never a
+    provider session. The control attempt (keyed by ``attempt_id``) and the event
+    (keyed by ``task_id`` + ``attempt_id``) come from independent journals and
+    are **not** cross-verified: the control projection omits ``task_id``, so no
+    task/actor binding check is performed here and no cross-attribution is
+    asserted. Raises (fail-closed) on corrupt journals; a genuinely missing event
+    is reported as an empty ``event`` projection.
     """
     job_id = scope_job_id(scope)
     status = control.status(scope)
@@ -156,8 +164,13 @@ def observe_attempt(
         "scope": {"project_id": scope.project_id, "workflow_id": scope.workflow_id},
         "job_id": job_id,
         "source": _source(),
-        "task_id": task_id,  # workflow task, never a provider session
         "attempt_id": attempt_id,
+        "task_id": task_id,  # workflow task, never a provider session
         "control": _project_attempt(attempt),
         "event": _project_event(event),
+        "note": (
+            "control and event are read from independent journals and are not "
+            "cross-verified; control status omits task_id, so no task/actor "
+            "binding check is performed here."
+        ),
     }

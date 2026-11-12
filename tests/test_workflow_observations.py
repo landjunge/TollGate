@@ -90,10 +90,10 @@ def test_observe_reflects_unknown_stop_and_settlement(tmp_path):
         observe_workflow(control, journal, SCOPE)["attempts"][0]["state"] == "SETTLED"
     )
 
-    # a committed stop is visible
+    # a committed stop is visible (reason is free text, so not exported)
     guard.stop(SCOPE, "stop-1", stop_reason="operator")
     stopped = observe_workflow(control, journal, SCOPE)
-    assert stopped["stopped"] is True and stopped["stop_reason"] == "operator"
+    assert stopped["stopped"] is True and "stop_reason" not in stopped
 
 
 def test_observe_attempt_maps_event_and_task_id(tmp_path):
@@ -116,7 +116,11 @@ def test_observe_attempt_maps_event_and_task_id(tmp_path):
     assert obs["event"]["event_type"] == "usage"
     assert obs["event"]["usage_kind"] == "measured"
     assert obs["event"]["tokens_in"] == 10 and obs["event"]["cost_microusd"] == 5
-    assert obs["event"]["evidence_ref"] == "receipt-1"
+    # free-text evidence_ref is never exported; only its presence.
+    assert obs["event"]["has_evidence_ref"] is True
+    assert "evidence_ref" not in obs["event"] and "stop_reason" not in obs["event"]
+    # control and event are reported unlinked.
+    assert "note" in obs and "task_id" not in obs["control"]
 
 
 def test_observe_attempt_missing_event_is_empty_projection(tmp_path):
@@ -125,7 +129,7 @@ def test_observe_attempt_missing_event_is_empty_projection(tmp_path):
     obs = observe_attempt(control, journal, SCOPE, "task:1", "a")
     assert obs["event"]["event_type"] is None
     assert obs["event"]["cost_microusd"] is None
-    assert obs["event"]["evidence_ref"] is None
+    assert obs["event"]["has_evidence_ref"] is False
 
 
 def test_observe_missing_scope_returns_empty(tmp_path):
@@ -172,9 +176,22 @@ def test_no_secret_fields_in_observation(tmp_path):
     # fields must be absent.
     for bad in ("api_key", "secret", "content", "prompt", "message", "request_hash"):
         assert not any(bad in k.lower() for k in keys), bad
-    # evidenced refs are allowlisted, but nothing else leaks.
-    assert obs["event"]["evidence_ref"] == "provider-bill-42"
-    assert obs["event"]["stop_reason"] in (None, "")
+    # evidenced refs are reduced to a presence flag; the raw value never leaks.
+    assert obs["event"]["has_evidence_ref"] is True
+    assert "provider-bill-42" not in repr(obs)
+
+
+def test_sensitive_sentinel_never_leaks(tmp_path):
+    control, journal, guard = setup(tmp_path)
+    control.reserve(identity("a"), QUOTE)
+    sentinel = "SECRET-SENTINEL-supersecret-prompt-ABC123"
+    guard.dispatch(identity("a"), lambda: None, evidence_ref=sentinel)
+    guard.stop(SCOPE, "stop-1", stop_reason=sentinel)
+
+    obs = observe_workflow(control, journal, SCOPE)
+    obs.update(observe_attempt(control, journal, SCOPE, "task:1", "a"))
+    assert sentinel not in repr(obs)
+    assert obs["event"]["has_evidence_ref"] is True  # presence only, never the text
 
 
 def test_missing_cost_never_zero(tmp_path):
