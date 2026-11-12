@@ -1,5 +1,5 @@
 /* Original assets, explicitly assigned for FIVE-TOOL-DESIGN-20261107. */
-export const CATALOG_VERSION = "1.2.1";
+export const CATALOG_VERSION = "1.2.2";
 export const APP_CATALOG = Object.freeze([
   {
     "id": "kirabridge",

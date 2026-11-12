@@ -1,5 +1,5 @@
-/* NetzwerkPunkt appbar 1.2.1 — metadata projection, not authentication. */
-export const APPBAR_VERSION = "1.2.1";
+/* NetzwerkPunkt appbar 1.2.2 — metadata projection, not authentication. */
+export const APPBAR_VERSION = "1.2.2";
 export const APP_ORDER = Object.freeze(["kirabridge", "threaddesk", "4allpass", "tollgate", "agent-authority"]);
 const STATES = ["confirmed", "connecting", "disconnected", "unknown", "error", "busy"];
 const ref = value => typeof value === "string" && /^[\w.:-]{1,128}$/.test(value);

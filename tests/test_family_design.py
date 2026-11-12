@@ -6,10 +6,10 @@ import hashlib
 import json
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
-
 from fastapi.testclient import TestClient
 
 from tollgate.server_v1 import app
@@ -34,16 +34,15 @@ def test_shared_module_files_match_sha256():
     bundle = json.loads(
         (NP / "networkpunkt-appbar-bundle.json").read_text(encoding="utf-8")
     )
-    assert bundle["version"] == "1.2.1"
+    assert bundle["version"] == "1.2.2"
     assert set(bundle["files"]) <= set(sums)
-    for name in sums:
-        target = NP / name if (NP / name).is_file() else NP / name
-        assert hashlib.sha256(target.read_bytes()).hexdigest() == sums[name], name
+    for name, expected in sums.items():
+        assert hashlib.sha256((NP / name).read_bytes()).hexdigest() == expected, name
     # The SHA list itself is pinned.
     assert hashlib.sha256(
         (NP / "networkpunkt-appbar-SHA256SUMS").read_bytes()
     ).hexdigest() == (
-        "0cc066e86e9f1ea8a6e7add8f6a4da4f22a3b4574bd5f7d7715c3dcc854e176a"
+        "689bf4c25bdcff41c095791c6f63128b46dc69785adef52b6ffc8c78fd82081e"
     )
 
 
@@ -65,74 +64,23 @@ def test_static_header_assets_whitelist_still_serve():
     assert client.get("/static/np/..%2Fserver_v1.py").status_code == 404
 
 
-def test_family_switch_abi_outcome_mapping():
-    # Mirrors FamilySwitch.outcome; the CLI ABI JSON shapes must stay stable.
-    def outcome(data: bytes, target: str) -> str:
-        try:
-            value = json.loads(data)
-        except (json.JSONDecodeError, TypeError):
-            return "uncertain"
-        if not isinstance(value, dict):
-            return "uncertain"
-        if value.get("success") is True:
-            return "focused" if value.get("active_product") == target else "uncertain"
-        if value.get("execution_outcome_unknown"):
-            return "uncertain"
-        code = (value.get("error") or {}).get("code", "")
-        return "missing" if code == "missing" else "failed"
-
-    ok = {
-        "success": True,
-        "active_product": "threaddesk",
-        "actual_outer_bounds": {"x": 0, "y": 0, "width": 1360, "height": 780},
-        "visible_family_windows": 1,
-    }
-    assert outcome(json.dumps(ok).encode(), "threaddesk") == "focused"
-    assert outcome(json.dumps(ok).encode(), "tollgate") == "uncertain"
-    assert (
-        outcome(
-            json.dumps(
-                {
-                    "success": False,
-                    "error": {"code": "missing", "message": ""},
-                    "execution_outcome_unknown": False,
-                }
-            ).encode(),
-            "tollgate",
-        )
-        == "missing"
-    )
-    assert (
-        outcome(
-            json.dumps(
-                {
-                    "success": False,
-                    "error": {"code": "busy", "message": ""},
-                    "execution_outcome_unknown": False,
-                }
-            ).encode(),
-            "tollgate",
-        )
-        == "failed"
-    )
-    assert (
-        outcome(
-            json.dumps({"success": False, "execution_outcome_unknown": True}).encode(),
-            "tollgate",
-        )
-        == "uncertain"
-    )
-    assert outcome(b"not json", "tollgate") == "uncertain"
-
-
-@pytest.mark.skipif(shutil.which("swiftc") is None, reason="swiftc not available")
+@pytest.mark.skipif(sys.platform != "darwin", reason="Cocoa/WebKit require macOS")
 def test_native_host_typechecks():
+    assert shutil.which("swiftc"), "macOS acceptance requires swiftc"
     result = subprocess.run(
-        ["swiftc", "-typecheck", "FamilySwitch.swift", "main.swift"],
+        [
+            "swiftc",
+            "-target",
+            "x86_64-apple-macos13.0",
+            "-typecheck",
+            "FamilySwitch.swift",
+            "NativeBackend.swift",
+            "main.swift",
+        ],
         cwd=str(MACOS),
         capture_output=True,
         text=True,
         timeout=120,
+        check=False,
     )
-    # Only the known non-fatal WebKit Sendable warning is tolerated.
     assert result.returncode == 0, result.stderr

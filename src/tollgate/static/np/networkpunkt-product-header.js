@@ -46,6 +46,8 @@ export function mountProductHeader(element, {selfId, locale = "de", selfRoute = 
     } catch { return null; }
   }
   const bar = mountAppBar(element, {selfId, locale:language, peers:{[selfId]:expected},
+    // Native broker: 30 s plus 1 s for host dispatch/receipt delivery. Status TTLs stay separate.
+    openTimeoutMs:typeof openTarget === "function" ? 31000 : 2000,
     onOpen:async ({appId, actionId}) => {
       if (typeof openTarget === "function") {
         // Only a catalog ID crosses the host boundary; never a URL, argv or PID.

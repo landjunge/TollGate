@@ -85,7 +85,7 @@ With permission to use the software and Python 3.11 or newer:
 
 The Protect demo needs no provider keys. Then check the local dashboard to see why a call was allowed or blocked. Real model calls and routing require your own provider accounts. [Quick start](docs/QUICKSTART.md).
 
-On macOS the local dashboard can also run in a lean native AppKit window: `native/macos/build.sh` compiles a host that starts the local server on a loopback port and provides the five-product family switch via `~/.local/bin/kirabridge` (catalog id only, no URL/PID/argv from the page). Build, bundle and install remain a separate gated step; the host has no budget/stop/provider rights.
+On macOS the local dashboard has a development AppKit host with a catalog-ID-only family switch. Its bridge binds the owned main frame and exact loopback origin; bounded IPC runs off the UI thread and UNKNOWN never retries. Close retains backend/state. The pinned shared module is 1.2.2. The bundle ships backend sources and **requires an existing Python 3.11+ environment with the project dependencies**; it is not a self-contained runtime and never installs dependencies. Candidate builds preserve older outputs, use the original ICNS and require clean source plus strict signature verification. See [native build prerequisites and evidence](native/macos/README.md). Installation and real five-app acceptance remain separate; the host grants no additional budget/stop/provider rights.
 
 ## Planned collaboration
 

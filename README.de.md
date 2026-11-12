@@ -85,7 +85,7 @@ Mit Nutzungserlaubnis und Python 3.11 oder neuer:
 
 Die Protect-Demo braucht keine Anbieter-Schlüssel. Prüfe anschließend im lokalen Dashboard, warum ein Aufruf erlaubt oder blockiert wurde. Für echte Modellaufrufe und Weiterleitung brauchst du eigene Anbieterzugänge. [Schnellstart](docs/QUICKSTART.md).
 
-Unter macOS lässt sich das lokale Dashboard auch in einem schlanken nativen AppKit-Fenster ausführen: `native/macos/build.sh` übersetzt einen Host, der den lokalen Server auf einem Loopback-Port startet und den Fünf-Produkt-Familienwechsel über `~/.local/bin/kirabridge` anbietet (nur Katalog-ID, keine URL/PID/argv von der Seite). Build, Bündelung und Installation bleiben ein eigener, per Gate freigegebener Schritt; der Host hat keine Budget-/Stop-/Provider-Rechte.
+Unter macOS gibt es einen AppKit-Entwicklungshost mit Familienwechsel ausschließlich über Katalog-IDs. Die Bridge bindet den eigenen Mainframe und exakten Loopback-Origin; begrenztes IPC läuft außerhalb des UI-Threads, UNKNOWN wird nie automatisch wiederholt. Close erhält Backend und Zustand. Das gepinnte gemeinsame Modul ist 1.2.2. Das Bundle enthält Backend-Sources und **benötigt eine vorhandene Python-3.11+-Umgebung mit den Projektabhängigkeiten**; es enthält keine eigenständige Runtime und installiert keine Abhängigkeiten. Kandidatenbuilds bewahren ältere Ausgaben, nutzen das Original-ICNS und verlangen saubere Sources sowie strikte Signaturprüfung. Siehe [native Voraussetzungen und Belege](native/macos/README.md). Installation und echte Fünf-App-Abnahme bleiben getrennt; der Host vergibt keine zusätzlichen Budget-/Stop-/Provider-Rechte.
 
 ## Geplante Zusammenarbeit
 

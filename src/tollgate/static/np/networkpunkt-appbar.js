@@ -1,4 +1,4 @@
-/* NetzwerkPunkt appbar 1.2.1 — portable DOM renderer, no transport or host launch. */
+/* NetzwerkPunkt appbar 1.2.2 — portable DOM renderer, no transport or host launch. */
 import { APPBAR_VERSION, APP_ORDER, createElapsed, createPeerState } from "./networkpunkt-appbar-state.js";
 import { APP_CATALOG } from "./networkpunkt-appbar-catalog.js";
 export { APPBAR_VERSION };
@@ -34,8 +34,9 @@ function catalogEntries(catalog) {
   }).sort((a, b) => APP_ORDER.indexOf(a.id) - APP_ORDER.indexOf(b.id));
 }
 
-export function mountAppBar(element, { catalog = APP_CATALOG, peers = {}, colors = {}, locale = "de", onOpen, selfId = null,
+export function mountAppBar(element, { catalog = APP_CATALOG, peers = {}, colors = {}, locale = "de", onOpen, selfId = null, openTimeoutMs = 2000,
   clock = () => performance.now(), wallClock = () => Date.now() } = {}) {
+  if (!Number.isInteger(openTimeoutMs) || openTimeoutMs < 2000 || openTimeoutMs > 31000) throw new TypeError("Invalid opening deadline");
   mounts.get(element)?.destroy();
   const doc = element.ownerDocument, win = doc.defaultView, mountId = ++mounted;
   const entries = catalogEntries(catalog), items = new Map();
@@ -100,7 +101,7 @@ export function mountAppBar(element, { catalog = APP_CATALOG, peers = {}, colors
         if (item.open) item.open.state = "uncertain";
         item.abort?.abort();
       } else if (cooldown >= 600) item.lastOpen = null;
-      if (item.open?.state === "opening" && item.open.age() >= 2000) {
+      if (item.open?.state === "opening" && item.open.age() >= openTimeoutMs) {
         item.open.state = "uncertain"; item.abort?.abort();
       }
       item.ring.dataset.connected = String(["confirmed", "busy"].includes(state.state));

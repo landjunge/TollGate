@@ -1,4 +1,4 @@
-/* NetzwerkPunkt appbar 1.2.1; NP desktop controls, one icon and one ring. */
+/* NetzwerkPunkt appbar 1.2.2; NP desktop controls, one icon and one ring. */
 .np-appbar { display:flex; align-items:center; gap:var(--np-space-1,4px); flex-shrink:0; width:max-content; max-width:100%; font:400 var(--np-meta)/1.4 var(--np-font); color:var(--np-text,#edf0f4); }
 .np-appbar-item { position:relative; display:inline-flex; flex:none; }
 .np-appbar-button { display:inline-flex; align-items:center; justify-content:center; width:var(--np-control,40px); height:var(--np-control,40px); padding:0; border:0; border-radius:0; background:transparent; color:inherit; cursor:pointer; }
@@ -18,7 +18,7 @@
 .np-appbar-sr { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 @media (prefers-reduced-motion:reduce) { .np-appbar-ring[data-pulse="true"]::before { animation:none; } }
 
-/* Five-tool design 1.2.1. Black common frame; original pixels stay untouched. */
+/* Five-tool design 1.2.2. Black common frame; original pixels stay untouched. */
 .np-appbar { font:400 var(--np-meta)/1.4 var(--np-font); gap:4px; margin:0; padding:4px; background:#000; border:1px solid #353940; }
 .np-appbar-button { width:44px; height:56px; flex-direction:column; gap:3px; min-width:0; min-height:0; margin:0; line-height:1; box-shadow:none; }
 .np-appbar-ring { width:36px; height:36px; background:#000; }

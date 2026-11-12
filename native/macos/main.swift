@@ -1,262 +1,164 @@
-// TollGate native macOS host: a lean AppKit WKWebView wrapper around the local
-// TollGate dashboard, plus the fixed five-product family switch via
-// ~/.local/bin/kirabridge. This host has no budget/stop/provider rights; it only
-// renders the local dashboard and relays catalog-id-only switch requests.
+// Native display host. No budget, stop, provider or OS-permission grants.
 import Cocoa
-import WebKit
+@preconcurrency import WebKit
 import Darwin
 
-let FAMILY_PRODUCT_IDS = ["kirabridge", "threaddesk", "4allpass", "tollgate", "agent-authority"]
-
-/// Bounded outcome returned to the web layer. Mirrors FamilySwitch.Outcome.
-func resolveOutcome(_ outcome: FamilySwitch.Outcome) -> String { outcome.rawValue }
-
-/// Find a free loopback TCP port by binding to 127.0.0.1:0 and reading it back.
-func findFreeLoopbackPort() -> Int32 {
-    let sock = socket(AF_INET, SOCK_STREAM, 0)
-    guard sock >= 0 else { return 8787 }
-    defer { close(sock) }
-    var addr = sockaddr_in()
-    addr.sin_family = sa_family_t(AF_INET)
-    addr.sin_port = 0
-    addr.sin_addr.s_addr = inet_addr("127.0.0.1")
-    let bound = withUnsafePointer(to: &addr) { ptr in
-        ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) { sap in
-            Darwin.bind(sock, sap, socklen_t(MemoryLayout<sockaddr_in>.size))
-        }
-    }
-    guard bound == 0 else { return 8787 }
-    var len = socklen_t(MemoryLayout<sockaddr_in>.size)
-    let got = withUnsafeMutablePointer(to: &addr) { ptr in
-        ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) { sap in
-            Darwin.getsockname(sock, sap, &len)
-        }
-    }
-    guard got == 0 else { return 8787 }
-    return Int32(UInt16(bigEndian: addr.sin_port))
-}
-
-/// Resolve the TollGate server command. Prefers the bundled backend source plus
-/// an existing python runtime (independent of the dev worktree), then an
-/// installed launcher, then any python3 with an installed tollgate. The host
-/// never installs or overwrites anything.
-func candidatePython() -> String? {
-    let candidates = [
-        "/usr/local/bin/python3.11",    // Homebrew Intel
-        "/opt/homebrew/bin/python3.11", // Homebrew Apple Silicon
-        "/usr/local/bin/python3",
-        "/usr/bin/python3",
-    ]
-    for path in candidates where FileManager.default.isExecutableFile(atPath: path) {
-        return path
-    }
-    return nil
-}
-
-func bundledBackendSrc() -> URL? {
-    guard let resource = Bundle.main.resourceURL else { return nil }
-    let src = resource.appendingPathComponent("backend/src")
-    var isDir: ObjCBool = false
-    if FileManager.default.fileExists(atPath: src.appendingPathComponent("tollgate").path,
-                                      isDirectory: &isDir), isDir.boolValue {
-        return src
-    }
-    return nil
-}
-
-func resolveServeCommand() -> (String, [String], [String: String])? {
-    // 1. Bundled backend source + an existing python runtime (no dev-WT dependency).
-    if let src = bundledBackendSrc(), let py = candidatePython() {
-        return (py, ["-m", "tollgate", "serve"], ["PYTHONPATH": src.path])
-    }
-    // 2. Existing installed launcher.
-    let launcher = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".local/bin/tollgate")
-    if FileManager.default.isExecutableFile(atPath: launcher.path) {
-        return (launcher.path, ["serve"], [:])
-    }
-    // 3. Any python3 with an installed tollgate (best-effort).
-    if let py = candidatePython() {
-        return (py, ["-m", "tollgate", "serve"], [:])
-    }
-    return nil
-}
-
-final class TollGateHost: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler {
+@MainActor
+final class TollGateHost: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, NSWindowDelegate {
     var window: NSWindow!
     var webView: WKWebView!
     var backend: Process?
-    var backendPort: Int32 = 8787
+    var origin: DashboardOrigin?
+    var documentGeneration = 0
+    var terminating = false
+    let familyGate = FamilySwitchGate()
     let contentController = WKUserContentController()
+    var english: Bool { Locale.preferredLanguages.first?.hasPrefix("de") != true }
+    func text(_ de: String, _ en: String) -> String { english ? en : de }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
-        buildMenu()
-
+        let menu = NSMenu(), item = NSMenuItem(), appMenu = NSMenu()
+        menu.addItem(item)
+        appMenu.addItem(withTitle: text("TollGate beenden", "Quit TollGate"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        item.submenu = appMenu; NSApp.mainMenu = menu
         let configuration = WKWebViewConfiguration()
         configuration.userContentController = contentController
         contentController.add(self, name: "familySwitch")
-        configuration.websiteDataStore = .default()
+        configuration.websiteDataStore = .nonPersistent()
         configuration.applicationNameForUserAgent = "TollGateDesktop"
-
         webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.uiDelegate = self
-        webView.navigationDelegate = self
-
-        window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 800, height: 600),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable],
-            backing: .buffered, defer: false)
-        // Outer bounds 1360×780 as the comparison start (frame, not content rect).
+        webView.uiDelegate = self; webView.navigationDelegate = self
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 800, height: 600),
+                          styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.setFrame(NSRect(x: 0, y: 0, width: 1360, height: 780), display: false)
-        window.title = "TollGate"
-        window.minSize = NSSize(width: 820, height: 620)
-        window.contentView = webView
-        window.isReleasedWhenClosed = false
-        window.delegate = self
-        window.center()
-        window.makeKeyAndOrderFront(nil)
-
-        startBackendAndLoad()
+        window.title = "TollGate"; window.minSize = NSSize(width: 820, height: 620)
+        window.contentView = webView; window.isReleasedWhenClosed = false; window.delegate = self
+        window.center(); window.makeKeyAndOrderFront(nil)
+        Task { await startBackendAndLoad() }
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    func buildMenu() {
-        let menu = NSMenu()
-        let item = NSMenuItem()
-        menu.addItem(item)
-        let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "TollGate beenden", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
-        item.submenu = appMenu
-        NSApp.mainMenu = menu
-    }
-
-    // MARK: Backend (loopback only)
-
-    func startBackendAndLoad() {
-        // Reuse an already-running TollGate on the default port when healthy.
-        backendPort = findFreeLoopbackPort()
-        guard let (cmd, args, env) = resolveServeCommand() else {
-            loadErrorPage("TollGate-Server nicht gefunden")
-            return
+    func startBackendAndLoad() async {
+        guard let resources = Bundle.main.resourceURL,
+              let runtime = try? String(contentsOf: resources.appendingPathComponent("runtime-python.txt"), encoding: .utf8)
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+              runtime.hasPrefix("/"), FileManager.default.isExecutableFile(atPath: runtime) else {
+            loadErrorPage(text("Konfiguriertes Python fehlt. Siehe native/macos/README.md.", "Configured Python is missing. See native/macos/README.md.")); return
         }
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: cmd)
-        task.arguments = args
-        var environment = ProcessInfo.processInfo.environment
-        environment["HOST"] = "127.0.0.1"
-        environment["PORT"] = String(backendPort)
-        for (k, v) in env { environment[k] = v }
-        task.environment = environment
-        task.standardInput = FileHandle.nullDevice
-        task.standardOutput = FileHandle.nullDevice
-        task.standardError = FileHandle.nullDevice
-        backend = task
-        do { try task.run() } catch { loadErrorPage("TollGate-Server konnte nicht gestartet werden"); return }
-        // Poll the local health endpoint, then load the dashboard.
-        let port = backendPort
-        DispatchQueue.global().async { [weak self] in
-            self?.waitForHealth(port: port)
+        let script = resources.appendingPathComponent("backend/backend_host.py").path
+        guard let checked = await NativeIPC.run(executable: URL(fileURLWithPath: runtime), arguments: ["-I", "-B", script, "--check"], timeout: 5),
+              checked.confirmed, checked.status == 0 else {
+            loadErrorPage(text("Python-Abhängigkeiten fehlen; kein automatischer Installationsversuch.", "Python dependencies are missing; no automatic installation attempted.")); return
         }
-    }
-
-    func waitForHealth(port: Int32) {
-        let url = URL(string: "http://127.0.0.1:\(port)/v1/health")!
-        for _ in 0..<60 {
-            if let data = try? Data(contentsOf: url), !data.isEmpty {
-                DispatchQueue.main.async { [weak self] in
-                    self?.loadDashboard(port: port)
+        guard !terminating else { return }
+        do {
+            let listener = try ReservedLoopback(), process = Process(), nonce = UUID().uuidString
+            process.executableURL = URL(fileURLWithPath: runtime)
+            process.arguments = ["-I", "-B", script, "--serve-inherited"]
+            var environment = ProcessInfo.processInfo.environment
+            environment["TOLLGATE_NATIVE_NONCE"] = nonce
+            process.environment = environment
+            process.standardInput = listener.handle
+            process.standardOutput = FileHandle.nullDevice; process.standardError = FileHandle.nullDevice
+            try process.run()
+            try? listener.handle.close()
+            backend = process
+            let boundOrigin = DashboardOrigin(port: listener.port)
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.timeoutIntervalForRequest = 0.5; configuration.timeoutIntervalForResource = 0.5
+            let session = URLSession(configuration: configuration)
+            defer { session.invalidateAndCancel() }
+            let deadline = ProcessInfo.processInfo.systemUptime + 12
+            let readyURL = URL(string: "http://127.0.0.1:\(listener.port)/_native/ready")!
+            while !terminating && process.isRunning && ProcessInfo.processInfo.systemUptime < deadline {
+                if let (data, response) = try? await session.data(from: readyURL), data.count <= 4096,
+                   response.url == readyURL, (response as? HTTPURLResponse)?.statusCode == 200,
+                   let value = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+                   value["nonce"] as? String == nonce, value["pid"] as? Int32 == process.processIdentifier,
+                   !terminating, process.isRunning {
+                    origin = boundOrigin
+                    webView.load(URLRequest(url: URL(string: "http://127.0.0.1:\(listener.port)/dashboard")!))
+                    return
                 }
-                return
+                try? await Task.sleep(nanoseconds: 100_000_000)
             }
-            usleep(200_000)
-        }
-        DispatchQueue.main.async { [weak self] in
-            self?.loadErrorPage("TollGate-Server antwortet nicht")
+            // Only the exact child we started, never another agent/server/group.
+            if process.isRunning { process.terminate() }
+            loadErrorPage(text("Eigenes Backend nicht bestätigt.", "Owned backend could not be confirmed."))
+        } catch {
+            loadErrorPage(text("Backend konnte nicht gestartet werden.", "Backend could not be started."))
         }
     }
-
-    func loadDashboard(port: Int32) {
-        let url = URL(string: "http://127.0.0.1:\(port)/dashboard")!
-        webView.load(URLRequest(url: url))
-    }
-
     func loadErrorPage(_ text: String) {
+        origin = nil
+        // All messages above are fixed native strings, never provider/user data.
         webView.loadHTMLString("<meta charset='utf-8'><p>\(text)</p>", baseURL: nil)
     }
 
-    // MARK: Family switch (catalog id only)
-
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard message.name == "familySwitch",
-              let body = message.body as? [String: Any],
+    func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard controller === contentController, message.webView === webView, message.name == "familySwitch",
+              backend?.isRunning == true, let origin,
+              origin.permitsMessage(mainFrame: message.frameInfo.isMainFrame,
+                scheme: message.frameInfo.securityOrigin.protocol, host: message.frameInfo.securityOrigin.host,
+                port: message.frameInfo.securityOrigin.port, frameURL: message.frameInfo.request.url, documentURL: webView.url),
+              let body = message.body as? [String: Any], Set(body.keys) == ["requestId", "appId"],
               let requestId = body["requestId"] as? String,
-              let appId = body["appId"] as? String,
-              FamilySwitch.isValidTarget(appId) else {
-            return
+              requestId.range(of: "^[A-Za-z0-9_-]{1,128}$", options: .regularExpression) != nil,
+              let appId = body["appId"] as? String, FamilySwitch.isValidTarget(appId) else { return }
+        switch familyGate.begin(requestId) {
+        case .duplicate: return // do not resolve/overwrite the original in-flight request
+        case .busy: resolve(requestId, outcome: .failed); return
+        case .unknown: resolve(requestId, outcome: .uncertain); return
+        case .started: break
         }
-        let outcome = performFamilySwitch(target: appId)
-        resolveWebRequest(requestId, outcome: resolveOutcome(outcome))
-    }
-
-    func performFamilySwitch(target: String) -> FamilySwitch.Outcome {
-        let broker = FamilySwitch.brokerURL()
-        guard FileManager.default.isExecutableFile(atPath: broker.path) else {
-            return .missing
-        }
-        let process = Process()
-        process.executableURL = broker
-        process.arguments = FamilySwitch.arguments(target: target, sourcePid: ProcessInfo.processInfo.processIdentifier)
-        process.standardInput = FileHandle.nullDevice
-        let stdout = Pipe(); let stderr = Pipe()
-        process.standardOutput = stdout; process.standardError = stderr
-        do { try process.run(); process.waitUntilExit() }
-        catch { return .missing }
-        let data = stdout.fileHandleForReading.readDataToEndOfFile()
-        return FamilySwitch.outcome(forJSON: data, target: target)
-    }
-
-    func resolveWebRequest(_ requestId: String, outcome: String) {
-        let script = "window.__tgFamilySwitchResolve && window.__tgFamilySwitchResolve(\(json(requestId)), \(json(outcome)));"
-        webView.evaluateJavaScript(script, completionHandler: nil)
-    }
-
-    func json(_ value: String) -> String {
-        let data = try! JSONSerialization.data(withJSONObject: [value])
-        return String(data: data.dropFirst().dropLast(), encoding: .utf8) ?? "\"\""
-    }
-
-    // MARK: Window lifecycle
-
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        window?.makeKeyAndOrderFront(nil)
-        return true
-    }
-
-    func applicationWillTerminate(_ notification: Notification) {
-        if let backend, backend.isRunning {
-            backend.terminate()  // This exact child only, never a process group.
+        let generation = documentGeneration
+        Task {
+            let result = await NativeIPC.switchTarget(appId, sourcePid: ProcessInfo.processInfo.processIdentifier)
+            familyGate.finish(result)
+            // Never deliver a former document's receipt into its replacement.
+            guard generation == documentGeneration, backend?.isRunning == true,
+                  origin.permits(webView.url) else { return }
+            resolve(requestId, outcome: result)
         }
     }
-
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        guard let url = navigationAction.request.url,
-              url.scheme == "http", url.host == "127.0.0.1",
-              url.user == nil, url.password == nil else {
+    func resolve(_ requestId: String, outcome: FamilySwitch.Outcome) {
+        guard let id = FamilySwitch.jsonString(requestId), let result = FamilySwitch.jsonString(outcome.rawValue) else { return }
+        webView.evaluateJavaScript("window.__tgFamilySwitchResolve && window.__tgFamilySwitchResolve(\(id), \(result));", completionHandler: nil)
+    }
+    func webView(_ view: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if view === webView, origin == nil, action.request.url?.absoluteString == "about:blank" {
+            decisionHandler(.allow); return
+        }
+        guard view === webView, backend?.isRunning == true, let origin, action.targetFrame != nil,
+              origin.permits(action.request.url) else { decisionHandler(.cancel); return }
+        decisionHandler(.allow)
+    }
+    func webView(_ view: WKWebView, decidePolicyFor response: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        if view === webView, origin == nil, response.response.url?.absoluteString == "about:blank" {
+            decisionHandler(.allow); return
+        }
+        guard view === webView, backend?.isRunning == true, let origin, origin.permits(response.response.url) else {
             decisionHandler(.cancel); return
         }
         decisionHandler(.allow)
     }
-}
-
-extension TollGateHost: NSWindowDelegate {
-    func windowShouldClose(_ sender: NSWindow) -> Bool {
-        // Close hides; the backend keeps running so a reopen is instant.
-        sender.orderOut(nil)
-        return false
+    func webView(_ view: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        if view === webView { documentGeneration += 1 }
+    }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        window?.makeKeyAndOrderFront(nil); return true
+    }
+    func windowShouldClose(_ sender: NSWindow) -> Bool { sender.orderOut(nil); return false }
+    func applicationWillTerminate(_ notification: Notification) {
+        terminating = true; origin = nil
+        if let backend, backend.isRunning { backend.terminate() }
     }
 }
 
-let host = TollGateHost()
-let app = NSApplication.shared
-app.delegate = host
-app.run()
+MainActor.assumeIsolated {
+    let host = TollGateHost()
+    let app = NSApplication.shared
+    app.delegate = host
+    withExtendedLifetime(host) { app.run() }
+}

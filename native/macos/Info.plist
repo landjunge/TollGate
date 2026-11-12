@@ -12,6 +12,8 @@
   <string>TollGateHost</string>
   <key>CFBundleShortVersionString</key>
   <string>1.0.12</string>
+  <key>CFBundleIconFile</key>
+  <string>TollGate.icns</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>LSMinimumSystemVersion</key>
