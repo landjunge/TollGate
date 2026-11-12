@@ -212,6 +212,29 @@ def test_reason_code_free_text_is_mapped_to_unknown(tmp_path):
     assert sentinel not in repr(obs2)
 
 
+@pytest.mark.parametrize(
+    ("incident", "expected"),
+    [
+        (False, False),
+        (True, True),
+        ("SECRET-SENTINEL-incident", None),
+        ({"detail": "SECRET-SENTINEL-incident"}, None),
+        (0, None),
+        (1, None),
+    ],
+    ids=["false", "true", "secret-string", "secret-object", "zero", "one"],
+)
+def test_budget_incident_exports_only_strict_booleans(tmp_path, incident, expected):
+    control, journal, _ = setup(tmp_path)
+    with control._transaction(SCOPE) as (path, data):
+        data["budgets"]["codex"]["incident"] = incident
+        control._commit(path, data)
+
+    obs = observe_workflow(control, journal, SCOPE)
+    assert obs["budgets"][0]["incident"] is expected
+    assert "SECRET-SENTINEL-incident" not in repr(obs)
+
+
 def test_missing_cost_never_zero(tmp_path):
     control, journal, guard = setup(tmp_path)
     control.reserve(identity("a"), QUOTE)

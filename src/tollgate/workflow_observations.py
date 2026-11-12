@@ -8,7 +8,8 @@ journal. Only safe fields leave it (ids, states, counters); prompts, answers,
 tool args, keys and free native metadata are never exposed. ``stop_reason`` is
 omitted entirely, ``evidence_ref`` is reduced to a presence flag, and an attempt
 ``reason_code`` is mapped through a strict allowlist (unknown codes are reported
-as ``unknown``, never as injected free text).
+as ``unknown``, never as injected free text). Budget ``incident`` values are
+exported only as strict booleans; other types become ``None`` (unknown).
 
 Honesty guarantees:
 
@@ -102,7 +103,10 @@ def _project_attempt(attempt: dict[str, Any] | None) -> dict[str, Any]:
 
 
 def _project_budget(budget: dict[str, Any]) -> dict[str, Any]:
-    return {k: budget.get(k) for k in _BUDGET_FIELDS}
+    out = {k: budget.get(k) for k in _BUDGET_FIELDS}
+    incident = budget.get("incident")
+    out["incident"] = incident if type(incident) is bool else None
+    return out
 
 
 def _project_usage(summary_usage: dict[str, Any]) -> dict[str, Any]:
