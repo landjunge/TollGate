@@ -7,23 +7,29 @@ structured (job_id/session_id/event_id) attribution with the measured / observed
 estimated / unknown split. This module composes both — it adds **no** second
 budget ledger, queue or process controller:
 
-* ``WorkflowGuard.dispatch`` runs ``AgentEventJournal.start_guard`` (a replay /
-  stop / deny / unknown guard) **before** the existing ``WorkflowControl.dispatch``
-  (which still performs real budget admission), then records exactly one outcome
+* ``WorkflowGuard.dispatch`` checks the replay/stop/deny/unknown guard and calls
+  the existing ``WorkflowControl.dispatch`` (real budget admission) **under one
+  per-job guard lock**, so the guard decision and the send are serialized against
+  other guard dispatches of the same job. It then records exactly one outcome
   event keyed by job/session/event.
-* ``WorkflowGuard.stop`` commits the existing ``WorkflowControl.stop`` barrier and
-  records a durable ``stop`` event.
+* ``WorkflowGuard.stop`` commits the existing stop barrier and records a durable
+  ``stop`` event using the control's **actual** stop id.
+
+The guard is authoritative from the control journal (not just the event journal):
+an attempt left in ``DISPATCH_ATTEMPTED``/``OUTCOME_UNKNOWN`` blocks new attempts
+after a crash even when the event write was lost. Unknown outcomes are never
+auto-settled or released; only the existing trusted ``settle`` with final evidence
+can resolve them, and this module never calls it.
 
 Identity mapping (unique, deterministic):
 
 * ``job_id``    ← ``scope_job_id(scope)`` (sha256 of the frozen scope, valid id)
-* ``session_id``← ``AttemptIdentity.task_id``
-* ``event_id``  ← ``AttemptIdentity.attempt_id``
+* ``session_id``← ``AttemptIdentity.task_id`` (attempts) / reserved ``tollgate-scope`` (stop)
+* ``event_id``  ← ``AttemptIdentity.attempt_id`` (attempts) / ``stop:<stop_id>`` (stop)
 
-Unknown/timeout outcomes are recorded as ``usage_kind=UNKNOWN`` and then block any
-further dispatch for the same job (no invisible replay, no automatic new paid
-start). This module never calls ``settle``, never releases a reservation and never
-makes a provider/billing call; it only observes and attributes.
+The session label ``tollgate-scope`` and the ``stop:`` event prefix are reserved:
+a task id of exactly ``tollgate-scope`` or an attempt id beginning with ``stop:``
+is unsupported and would be a namespace collision.
 """
 
 from __future__ import annotations
@@ -40,13 +46,15 @@ from tollgate.agent_events import (
     EventType,
     UsageKind,
 )
+from tollgate.filelock import FileLock
 from tollgate.workflow_control import AttemptIdentity, WorkflowControl, WorkflowScope
 
 __all__ = ["WorkflowGuard", "scope_job_id"]
 
 # Reserved session for scope-level events (stop barriers). Task ids are caller
-# provided, so this label is documented as reserved for the guard.
-_SCOPE_SESSION = "scope"
+# provided, so this label is documented as reserved and never reused for attempts.
+_SCOPE_SESSION = "tollgate-scope"
+_STOP_PREFIX = "stop:"
 
 
 def scope_job_id(scope: WorkflowScope) -> str:
@@ -73,9 +81,19 @@ def _event_keys(identity: AttemptIdentity) -> dict[str, str]:
 class WorkflowGuard:
     """Replay guard in front of ``WorkflowControl.dispatch`` + event attribution."""
 
-    def __init__(self, control: WorkflowControl, journal: AgentEventJournal) -> None:
+    def __init__(
+        self,
+        control: WorkflowControl,
+        journal: AgentEventJournal,
+        *,
+        lock_timeout_s: float = 1.0,
+    ) -> None:
         self.control = control
         self.journal = journal
+        self.lock_timeout_s = lock_timeout_s
+
+    def _guard_lock_path(self, job_id: str) -> Any:
+        return self.journal.directory / f"{job_id}.guard.lock"
 
     def dispatch(
         self,
@@ -93,26 +111,27 @@ class WorkflowGuard:
         """Replay guard before dispatch, then existing admission + dispatch.
 
         Requires a prior ``self.control.reserve(identity, quote)`` (unchanged).
-        The returned ``send`` callback is invoked at most once; repeats of the
-        same attempt, committed stops, DENY decisions and unresolved unknown
-        outcomes never re-dispatch.
+        The guard decision and the send are serialized under a per-job lock, and
+        the guard re-derives the authoritative state from the control journal, so
+        a concurrent or crashed attempt cannot slip past an unknown/stop/deny.
         """
         keys = _event_keys(identity)
-        guard = self._start_guard(keys["job_id"])
-        if guard["blocked"]:
-            return {
-                "ok": False,
-                "dispatched": False,
-                "state": "GUARD_BLOCKED",
-                "outcome": "GUARD_BLOCKED",
-                "reason": guard["reason"],
-                "protection": "replay_guard",
-                "attempt_id": identity.attempt_id,
-            }
+        job_id = keys["job_id"]
 
-        # Track actual invocation and whether the callback raised: workflow_control
-        # projects both DISPATCH_ATTEMPTED and OUTCOME_UNKNOWN to "OUTCOME_UNKNOWN",
-        # so the guard must distinguish them itself.
+        # Validate usage arguments before any effect (fail before send, not after).
+        success_event = AgentEvent(
+            **keys,
+            event_type=EventType.USAGE,
+            usage_kind=usage_kind,
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
+            cost_microusd=cost_microusd,
+            turns=turns,
+            runtime_s=runtime_s,
+            decision="ALLOW",
+            evidence_ref=evidence_ref,
+        )
+
         called: dict[str, bool] = {"sent": False, "raised": False}
 
         def _send() -> Any:
@@ -123,36 +142,72 @@ class WorkflowGuard:
                 called["raised"] = True
                 raise
 
-        result = self.control.dispatch(identity, _send)
-        state = str(result.get("state") or "")
-        self._record_outcome(
-            keys,
-            state,
-            result,
-            raised=called["raised"],
-            usage_kind=usage_kind,
-            tokens_in=tokens_in,
-            tokens_out=tokens_out,
-            cost_microusd=cost_microusd,
-            turns=turns,
-            runtime_s=runtime_s,
-            evidence_ref=evidence_ref,
-        )
-        if state in ("DENIED", "CANCELLED_NO_SEND"):
-            outcome = "DENIED"
-        elif called["raised"]:
-            outcome = "UNKNOWN"
-        else:
-            outcome = "SENT"
-        return {
-            "ok": True,
-            "dispatched": called["sent"] and not called["raised"],
-            "state": state,
-            "outcome": outcome,
-            "reason_code": result.get("reason_code"),
-            "attempt": result,
-            "attempt_id": identity.attempt_id,
-        }
+        try:
+            with FileLock(self._guard_lock_path(job_id), timeout_s=self.lock_timeout_s):
+                reason = self._guard_check(identity)
+                if reason:
+                    return {
+                        "ok": False,
+                        "dispatched": False,
+                        "state": "GUARD_BLOCKED",
+                        "outcome": "GUARD_BLOCKED",
+                        "reason": reason,
+                        "protection": "replay_guard",
+                        "attempt_id": identity.attempt_id,
+                    }
+
+                result = self.control.dispatch(identity, _send)
+                state = str(result.get("state") or "")
+
+                if called["sent"]:
+                    if called["raised"]:
+                        outcome = "UNKNOWN"
+                        recorded = self._safe_record(
+                            AgentEvent(
+                                **keys,
+                                event_type=EventType.USAGE,
+                                usage_kind=UsageKind.UNKNOWN,
+                            )
+                        )
+                    else:
+                        outcome = "SENT"
+                        recorded = self._safe_record(success_event)
+                elif state in ("DENIED", "CANCELLED_NO_SEND"):
+                    outcome = "DENIED"
+                    recorded = self._safe_record(
+                        AgentEvent(
+                            **keys,
+                            event_type=EventType.USAGE,
+                            usage_kind=UsageKind.UNKNOWN,
+                            decision="DENY",
+                            stop_reason=str(result.get("reason_code") or ""),
+                        )
+                    )
+                else:
+                    # Replay: no callback ran. Return the stored result, never a
+                    # fabricated SENT/ALLOW and never a conflict from new args.
+                    outcome = "REPLAYED"
+                    recorded = True
+
+                return {
+                    "ok": True,
+                    "dispatched": called["sent"] and not called["raised"],
+                    "state": state,
+                    "outcome": outcome,
+                    "reason_code": result.get("reason_code"),
+                    "recorded": recorded,
+                    "attempt": result,
+                    "attempt_id": identity.attempt_id,
+                }
+        except TimeoutError:
+            return {
+                "ok": False,
+                "dispatched": False,
+                "state": "GUARD_BUSY",
+                "outcome": "GUARD_BUSY",
+                "reason": "GUARD_LOCK_TIMEOUT",
+                "attempt_id": identity.attempt_id,
+            }
 
     def stop(
         self,
@@ -164,82 +219,64 @@ class WorkflowGuard:
     ) -> dict[str, Any]:
         """Commit the existing durable stop barrier and record a ``stop`` event.
 
+        Uses the control's actual persisted stop id (not the requested one) so a
+        repeat stop is idempotent and never rewrites another barrier's identity.
         Only a confirmed ``EFFECTIVE`` barrier is recorded; ``PENDING`` is not a
         committed stop and is returned unchanged.
         """
-        result = self.control.stop(scope, stop_id)
-        if result.get("status") == "EFFECTIVE":
-            self.journal.record(
-                AgentEvent(
-                    job_id=scope_job_id(scope),
-                    session_id=session_id,
-                    event_id=stop_id,
-                    event_type=EventType.STOP,
-                    usage_kind=UsageKind.UNKNOWN,
-                    decision="DENY",
-                    stop_reason=stop_reason or stop_id,
-                )
-            )
-        return result
-
-    def _start_guard(self, job_id: str) -> dict[str, Any]:
-        """Fail-closed guard: an unreadable/corrupt journal blocks dispatch."""
+        job_id = scope_job_id(scope)
         try:
-            return self.journal.start_guard(job_id)
-        except AgentEventError as exc:
+            with FileLock(self._guard_lock_path(job_id), timeout_s=self.lock_timeout_s):
+                result = self.control.stop(scope, stop_id)
+                if result.get("status") == "EFFECTIVE":
+                    actual = str(result.get("stop_id") or stop_id)
+                    self._safe_record(
+                        AgentEvent(
+                            job_id=job_id,
+                            session_id=session_id,
+                            event_id=f"{_STOP_PREFIX}{actual}",
+                            event_type=EventType.STOP,
+                            usage_kind=UsageKind.UNKNOWN,
+                            decision="DENY",
+                            stop_reason=stop_reason or actual,
+                        )
+                    )
+                return result
+        except TimeoutError:
             return {
-                "blocked": True,
-                "reason": exc.code,
-                "stopped": False,
-                "stop_reason": "",
-                "budget_authorized": False,
+                "status": "PENDING",
+                "further_dispatch_blocked": False,
+                "abort_confirmed": False,
+                "external_effect": "unknown",
+                "reason": "GUARD_LOCK_TIMEOUT",
             }
 
-    def _record_outcome(
-        self,
-        keys: dict[str, str],
-        state: str,
-        result: dict[str, Any],
-        *,
-        raised: bool,
-        usage_kind: UsageKind,
-        tokens_in: int,
-        tokens_out: int,
-        cost_microusd: int,
-        turns: int,
-        runtime_s: float,
-        evidence_ref: str,
-    ) -> None:
-        if state in ("DENIED", "CANCELLED_NO_SEND"):
-            self.journal.record(
-                AgentEvent(
-                    **keys,
-                    event_type=EventType.USAGE,
-                    usage_kind=UsageKind.UNKNOWN,
-                    decision="DENY",
-                    stop_reason=str(result.get("reason_code") or ""),
-                )
-            )
-        elif raised:
-            self.journal.record(
-                AgentEvent(
-                    **keys,
-                    event_type=EventType.USAGE,
-                    usage_kind=UsageKind.UNKNOWN,
-                )
-            )
-        else:
-            self.journal.record(
-                AgentEvent(
-                    **keys,
-                    event_type=EventType.USAGE,
-                    usage_kind=usage_kind,
-                    tokens_in=tokens_in,
-                    tokens_out=tokens_out,
-                    cost_microusd=cost_microusd,
-                    turns=turns,
-                    runtime_s=runtime_s,
-                    decision="ALLOW",
-                    evidence_ref=evidence_ref,
-                )
-            )
+    def _guard_check(self, identity: AttemptIdentity) -> str:
+        """Fail-closed: corrupt journal or unresolved/stopped/denied state blocks."""
+        job_id = scope_job_id(identity.scope)
+        try:
+            ev = self.journal.start_guard(job_id)
+        except AgentEventError as exc:
+            return exc.code
+        if ev["blocked"]:
+            return str(ev["reason"])
+
+        # Authoritative control-journal view (survives a crashed event write).
+        status = self.control.status(identity.scope)
+        if status.get("stopped"):
+            return "WORKFLOW_STOPPED"
+        for attempt in status.get("attempts") or []:
+            if attempt.get("attempt_id") == identity.attempt_id:
+                continue
+            if attempt.get("state") == "OUTCOME_UNKNOWN":
+                return "UNRESOLVED_UNKNOWN"
+        return ""
+
+    def _safe_record(self, event: AgentEvent) -> bool:
+        """Attribution is best-effort; the authoritative guard reads the control
+        journal, so a write failure never crashes the dispatch result."""
+        try:
+            self.journal.record(event)
+            return True
+        except AgentEventError:
+            return False

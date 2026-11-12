@@ -2,15 +2,26 @@
 
 No provider/billing call, no real key, no network, no global process action.
 Only isolated temporary journals under ``tmp_path`` are written. Covers the
-coordinated integration: replay guard before dispatch, existing budget
-admission, and unique job/session/event mapping of usage/stop/unknown.
+coordinated integration: serialized replay guard before dispatch, existing
+budget admission, unique job/session/event mapping of usage/stop/unknown, and
+crash/replay/write-failure/namespace regressions.
 """
 
 from __future__ import annotations
 
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 
-from tollgate.agent_events import AgentEventJournal, EventType, UsageKind
+import pytest
+
+from tollgate.agent_events import (
+    AgentEventError,
+    AgentEventJournal,
+    AgentEventRef,
+    EventType,
+    UsageKind,
+)
 from tollgate.workflow_control import (
     AttemptIdentity,
     Quote,
@@ -63,7 +74,7 @@ def test_e2e_duplicate_attempt_no_second_dispatch(tmp_path):
     r2 = g.dispatch(identity("a"), lambda: sent.append(2))
     assert sent == [1]  # second dispatch never sends
     assert r1["dispatched"] is True and r1["outcome"] == "SENT"
-    assert r2["dispatched"] is False
+    assert r2["dispatched"] is False and r2["outcome"] == "REPLAYED"
     # Exactly one attributed event for the attempt.
     assert g.journal.summary(scope_job_id(SCOPE))["events"] == 1
 
@@ -166,8 +177,148 @@ def test_guard_fails_closed_on_corrupt_event_journal(tmp_path):
 def test_stop_event_uses_scope_level_identity(tmp_path):
     g = setup(tmp_path)
     assert g.stop(SCOPE, "stop-9", stop_reason="budget")["status"] == "EFFECTIVE"
-    from tollgate.agent_events import AgentEventRef
-
-    stored = g.journal.get(AgentEventRef(scope_job_id(SCOPE), "scope", "stop-9"))
+    stored = g.journal.get(
+        AgentEventRef(scope_job_id(SCOPE), "tollgate-scope", "stop:stop-9")
+    )
     assert stored["event_type"] == EventType.STOP.value
     assert stored["decision"] == "DENY"
+
+
+def test_replay_unknown_returns_unknown_not_sent(tmp_path):
+    g = setup(tmp_path, 200)
+    g.control.reserve(identity("a"), QUOTE)
+    sent = []
+
+    def flaky():
+        sent.append(1)
+        raise TimeoutError("synthetic")
+
+    r1 = g.dispatch(identity("a"), flaky)
+    assert r1["outcome"] == "UNKNOWN"
+    # Replay the same attempt: no callback, no SENT/ALLOW write, no conflict.
+    r2 = g.dispatch(identity("a"), lambda: sent.append(2))
+    assert sent == [1]
+    assert r2["dispatched"] is False and r2["outcome"] in ("REPLAYED", "GUARD_BLOCKED")
+    assert r2["outcome"] != "SENT"
+    usage = g.journal.summary(scope_job_id(SCOPE))["usage"]
+    assert usage["measured"]["events"] == 0 and usage["observed"]["events"] == 0
+
+
+def test_replay_with_different_usage_args_returns_stored_result(tmp_path):
+    g = setup(tmp_path)
+    g.control.reserve(identity("a"), QUOTE)
+    sent = []
+    g.dispatch(
+        identity("a"),
+        lambda: sent.append(1),
+        usage_kind=UsageKind.MEASURED,
+        tokens_in=10,
+    )
+    # Replay with different metrics must not conflict or overwrite.
+    r2 = g.dispatch(
+        identity("a"),
+        lambda: sent.append(2),
+        usage_kind=UsageKind.MEASURED,
+        tokens_in=999,
+    )
+    assert sent == [1]
+    assert r2["outcome"] == "REPLAYED"
+    assert (
+        g.journal.summary(scope_job_id(SCOPE))["usage"]["measured"]["tokens_in"] == 10
+    )
+
+
+def test_crash_after_control_marker_blocks_new_attempt(tmp_path):
+    # Simulate a crash: control attempt DISPATCH_ATTEMPTED but no event written.
+    g = setup(tmp_path)
+    g.control.reserve(identity("a"), QUOTE)
+    with g.control._transaction(SCOPE) as (path, data):
+        data["attempts"]["a"]["state"] = "DISPATCH_ATTEMPTED"
+        data["attempts"]["a"]["reason_code"] = "AWAITING_FINAL_EVIDENCE"
+        g.control._commit(path, data)
+
+    # Fresh guard (restart) on the same root must block a new attempt.
+    g2 = guard(tmp_path)
+    g2.control.reserve(identity("b"), QUOTE)
+    sent = []
+    r = g2.dispatch(identity("b"), lambda: sent.append(1))
+    assert sent == []
+    assert r["state"] == "GUARD_BLOCKED" and r["reason"] == "UNRESOLVED_UNKNOWN"
+
+
+def test_event_write_failure_keeps_control_authoritative(tmp_path, monkeypatch):
+    g = setup(tmp_path, 200)
+    g.control.reserve(identity("a"), QUOTE)
+    sent = []
+
+    def fail_record(event):
+        raise AgentEventError("JOURNAL_SIZE")
+
+    monkeypatch.setattr(g.journal, "record", fail_record)
+    r = g.dispatch(identity("a"), lambda: sent.append(1))
+    assert sent == [1] and r["outcome"] == "SENT" and r["recorded"] is False
+
+    # Restore recording; the control journal (not the lost event) still blocks.
+    g.control.reserve(identity("b"), QUOTE)
+    r2 = g.dispatch(identity("b"), lambda: sent.append(2))
+    assert sent == [1]
+    assert r2["state"] == "GUARD_BLOCKED" and r2["reason"] == "UNRESOLVED_UNKNOWN"
+
+
+def test_guard_serializes_check_and_send_against_concurrent_dispatch(tmp_path):
+    g = setup(tmp_path, 400)
+    g.control.reserve(identity("a"), QUOTE)
+    g.control.reserve(identity("b"), QUOTE)
+    sent = []
+    entered = threading.Event()
+    release = threading.Event()
+
+    def slow_unknown():
+        entered.set()
+        assert release.wait(3)
+        raise TimeoutError("synthetic")
+
+    with ThreadPoolExecutor(2) as pool:
+        f_a = pool.submit(g.dispatch, identity("a"), slow_unknown)
+        assert entered.wait(2)
+        f_b = pool.submit(g.dispatch, identity("b"), lambda: sent.append("b"))
+        release.set()
+        r_a = f_a.result(5)
+        r_b = f_b.result(5)
+
+    assert r_a["outcome"] == "UNKNOWN"
+    assert r_b["state"] == "GUARD_BLOCKED"
+    assert r_b["reason"] in ("UNKNOWN_OUTCOME", "UNRESOLVED_UNKNOWN")
+    assert sent == []
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"tokens_in": -1},
+        {"cost_microusd": 1.5},
+        {"turns": False},
+        {"runtime_s": float("nan")},
+        {"usage_kind": "wat"},
+    ],
+)
+def test_invalid_usage_args_fail_before_dispatch(tmp_path, bad):
+    g = setup(tmp_path)
+    g.control.reserve(identity("a"), QUOTE)
+    sent = []
+    with pytest.raises(AgentEventError):
+        g.dispatch(identity("a"), lambda: sent.append(1), **bad)
+    assert sent == []  # failed before any send
+
+
+def test_stop_uses_actual_id_and_is_idempotent(tmp_path):
+    g = setup(tmp_path)
+    g.stop(SCOPE, "stop-1", stop_reason="op")
+    # Already stopped: the control keeps the original id, the guard records it once.
+    result = g.stop(SCOPE, "stop-2", stop_reason="op")
+    assert result["status"] == "EFFECTIVE" and result["stop_id"] == "stop-1"
+    assert g.journal.summary(scope_job_id(SCOPE))["events"] == 1
+    stored = g.journal.get(
+        AgentEventRef(scope_job_id(SCOPE), "tollgate-scope", "stop:stop-1")
+    )
+    assert stored["event_type"] == EventType.STOP.value
