@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key>
+  <string>de.netzwerkpunkt.tollgate</string>
+  <key>CFBundleName</key>
+  <string>TollGate</string>
+  <key>CFBundleDisplayName</key>
+  <string>TollGate</string>
+  <key>CFBundleExecutable</key>
+  <string>TollGateHost</string>
+  <key>CFBundleShortVersionString</key>
+  <string>1.0.12</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>LSMinimumSystemVersion</key>
+  <string>13.0</string>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+</dict>
+</plist>

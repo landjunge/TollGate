@@ -1,4 +1,4 @@
-/* NetzwerkPunkt appbar 1.1.0 — portable DOM renderer, no transport or host launch. */
+/* NetzwerkPunkt appbar 1.2.1 — portable DOM renderer, no transport or host launch. */
 import { APPBAR_VERSION, APP_ORDER, createElapsed, createPeerState } from "./networkpunkt-appbar-state.js";
 import { APP_CATALOG } from "./networkpunkt-appbar-catalog.js";
 export { APPBAR_VERSION };
@@ -60,7 +60,7 @@ export function mountAppBar(element, { catalog = APP_CATALOG, peers = {}, colors
     image.src = new URL(entry.icon, import.meta.url).href;
     const art = doc.createElement("span"); art.className = "np-appbar-art";
     if (entry.art) {
-      const [x, y, width, height] = entry.art, scale = 28 / Math.max(width, height);
+      const [x, y, width, height] = entry.art, scale = 32 / Math.max(width, height);
       art.style.width = `${width * scale}px`; art.style.height = `${height * scale}px`;
       image.style.width = image.style.height = `${256 * scale}px`;
       image.style.left = `${-x * scale}px`; image.style.top = `${-y * scale}px`;

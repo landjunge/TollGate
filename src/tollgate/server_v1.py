@@ -26,7 +26,12 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
+from fastapi.responses import (
+    HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    StreamingResponse,
+)
 from pydantic import BaseModel, Field
 
 from tollgate import __version__, get_keys_service, i18n, routed_chat
@@ -83,6 +88,7 @@ _bootstrap_env()
 
 LANGUAGE_COOKIE = "tollgate_lang"
 REGISTER_COOKIE = "tollgate_register"
+
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
@@ -254,7 +260,12 @@ def _metrics_authorized(
 
     # Auth mode: any valid consumer (scrape with desk key)
     try:
-        _require(x_consumer_key, need_admin=False, authorization=authorization, x_api_key=x_api_key)
+        _require(
+            x_consumer_key,
+            need_admin=False,
+            authorization=authorization,
+            x_api_key=x_api_key,
+        )
         return True
     except HTTPException:
         return False
@@ -369,7 +380,9 @@ def status_view(
 
     fmt = (format or "json").strip().lower()
     if fmt in ("text", "txt", "md"):
-        return PlainTextResponse(format_status_text(), media_type="text/plain; charset=utf-8")
+        return PlainTextResponse(
+            format_status_text(), media_type="text/plain; charset=utf-8"
+        )
     out = desk_status()
     out["viewer"] = auth["consumer"]
     return out
@@ -599,7 +612,12 @@ def circuits_list(
     from tollgate.gateway.circuit import get_circuits
 
     rows = get_circuits().snapshot()
-    return {"ok": True, "count": len(rows), "circuits": rows, "viewer": auth["consumer"]}
+    return {
+        "ok": True,
+        "count": len(rows),
+        "circuits": rows,
+        "viewer": auth["consumer"],
+    }
 
 
 @app.post("/v1/circuits/reset")
@@ -616,9 +634,7 @@ def circuits_reset(
     from tollgate.gateway.circuit import reset_circuits
 
     if not body.provider and not body.all:
-        raise HTTPException(
-            status_code=400, detail="provider required or all=true"
-        )
+        raise HTTPException(status_code=400, detail="provider required or all=true")
     out = reset_circuits(body.provider or "", all_circuits=bool(body.all))
     out["viewer"] = auth["consumer"]
     return out
@@ -632,10 +648,18 @@ def dashboard_static(name: str):
 
     from fastapi.responses import Response
 
-    if not re.fullmatch(r"(networkpunkt-appbar[a-z-]*\.(js|css)|networkpunkt-product-header\.js|np-appbar-[a-z0-9-]+-256\.png)", name):
+    if not re.fullmatch(
+        r"(networkpunkt-appbar[a-z-]*\.(js|css)|networkpunkt-product-header\.js|networkpunkt\.css|networkpunkt-appbar-assets\.json|np-appbar-[a-z0-9-]+-256\.png)",
+        name,
+    ):
         raise HTTPException(status_code=404, detail="not found")
     path = files("tollgate").joinpath("static/np", name)
-    types = {"js": "text/javascript", "css": "text/css", "png": "image/png"}
+    types = {
+        "js": "text/javascript",
+        "css": "text/css",
+        "png": "image/png",
+        "json": "application/json",
+    }
     return Response(path.read_bytes(), media_type=types[name.rsplit(".", 1)[1]])
 
 
@@ -856,7 +880,9 @@ def config_get(
     authorization: str | None = Header(default=None, alias="Authorization"),
 ) -> dict[str, Any]:
     """Read keys_app.json policy (admin when auth mode)."""
-    auth = _require(x_consumer_key, x_consumer_id, need_admin=True, authorization=authorization)
+    auth = _require(
+        x_consumer_key, x_consumer_id, need_admin=True, authorization=authorization
+    )
     out = get_keys_service().get_config()
     out["consumer"] = auth["consumer"]
     out["warning"] = (
@@ -873,7 +899,9 @@ def config_patch(
     authorization: str | None = Header(default=None, alias="Authorization"),
 ) -> dict[str, Any]:
     """Deep-merge patch into keys_app.json (admin when auth mode)."""
-    auth = _require(x_consumer_key, x_consumer_id, need_admin=True, authorization=authorization)
+    auth = _require(
+        x_consumer_key, x_consumer_id, need_admin=True, authorization=authorization
+    )
     if not isinstance(body, dict) or not body:
         raise HTTPException(status_code=400, detail="JSON object patch required")
     patch = (
@@ -971,7 +999,9 @@ def openai_chat_completions(
         if prefer_free is None:
             prefer_free = auto_free
     else:
-        prefer_free = bool(prefer_free) if prefer_free is not None else intent == "free_llm"
+        prefer_free = (
+            bool(prefer_free) if prefer_free is not None else intent == "free_llm"
+        )
 
     # model may be provider-specific id; empty provider → router picks
     mid = (body.model or "").strip()
@@ -1131,7 +1161,9 @@ def anthropic_messages(
         if prefer_free is None:
             prefer_free = auto_free
     else:
-        prefer_free = bool(prefer_free) if prefer_free is not None else intent == "free_llm"
+        prefer_free = (
+            bool(prefer_free) if prefer_free is not None else intent == "free_llm"
+        )
 
     mid = (body.model or "").strip()
     provider = (body.provider or "").strip()
@@ -1143,7 +1175,9 @@ def anthropic_messages(
     rclass = (body.request_class or "interactive").strip() or "interactive"
     meta_user = ""
     if isinstance(body.metadata, dict):
-        meta_user = str(body.metadata.get("user_id") or body.metadata.get("user") or "")[:64]
+        meta_user = str(
+            body.metadata.get("user_id") or body.metadata.get("user") or ""
+        )[:64]
     agent = (meta_user or f"anthropic:{consumer}")[:64]
     max_tok = max(1, int(body.max_tokens or 1024))
     temp = float(body.temperature if body.temperature is not None else 0.7)

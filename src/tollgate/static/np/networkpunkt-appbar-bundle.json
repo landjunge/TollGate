@@ -1,0 +1,23 @@
+{
+  "v": 1,
+  "version": "1.2.1",
+  "designCoreVersion": "0.1",
+  "files": [
+    "networkpunkt.css",
+    "networkpunkt-appbar.js",
+    "networkpunkt-appbar-state.js",
+    "networkpunkt-appbar-catalog.js",
+    "networkpunkt-appbar.css",
+    "networkpunkt-product-header.js",
+    "networkpunkt-appbar-assets.json",
+    "np-appbar-4allpass-dark-256.png",
+    "np-appbar-agent-authority-dark-256.png",
+    "np-appbar-kirabridge-dark-256.png",
+    "np-appbar-threaddesk-dark-256.png",
+    "np-appbar-tollgate-dark-256.png"
+  ],
+  "sourceOfTruth": "ThreadDesk; pinned local copies only",
+  "integrationStatus": "shared renderer and catalog-ID openTarget hook; native host acceptance separate",
+  "upstreamBundleVersion": "1.1.0",
+  "preservedPatch": "KiraBridge 1.1.1 delayed dialog-close focus guard"
+}
