@@ -295,7 +295,10 @@ def self_test():
         if got_keep != keep_ids:
             failed.append(f"{title}: keep_installers {got_keep} != {keep_ids}")
         evidence_names = {row["name"] for row in result["evidence"]}
-        if "LICENSE" in {a["name"] for r in releases for a in r["assets"]} and "LICENSE" not in evidence_names:
+        if (
+            "LICENSE" in {a["name"] for r in releases for a in r["assets"]}
+            and "LICENSE" not in evidence_names
+        ):
             failed.append(f"{title}: LICENSE was not kept as evidence")
         if any(row["name"] == "third-party-notices-macOS.zip" for row in result["delete"]):
             failed.append(f"{title}: notices zip was listed for delete")
@@ -304,7 +307,11 @@ def self_test():
         failed.append("evidence files classified as installers")
     if not is_installer("install-macos.sh") or not is_installer("app.whl"):
         failed.append("install-macos.sh or wheel not classified as installer")
-    if lane("linux-v0.8.0rc41") != "remote" or lane("windows-v1") is not None or lane("v0.2.0") != "desktop":
+    if (
+        lane("linux-v0.8.0rc41") != "remote"
+        or lane("windows-v1") is not None
+        or lane("v0.2.0") != "desktop"
+    ):
         failed.append("lane() mismatch")
 
     if failed:
