@@ -62,7 +62,7 @@ TollGate checks connected model and tool calls before they execute. It helps sto
 
 [Quick start from source](docs/QUICKSTART.md) · [View source](https://github.com/landjunge/tollgate/tree/main)
 
-There is no published desktop installer. The [announcement release](https://github.com/landjunge/tollgate/releases/tag/announce-public) has no packaged downloads. Use requires permission under the [license](LICENSE).
+There is no published desktop installer. The [announcement release](https://github.com/landjunge/tollgate/releases/tag/announce-public) has no packaged downloads. Private use is free under the [license](LICENSE); business use needs written permission.
 
 ## What TollGate helps you do
 
@@ -105,7 +105,11 @@ Some interfaces already exist. A fully configured and verified workflow across a
 
 ## License
 
-[Source-available, all rights reserved](LICENSE). Visible source does not grant general permission to use or redistribute it. Historical MIT license rights remain intact.
+**Netzwerkpunkt Personal Use License 1.0 — custom source-available terms.**
+
+Private, non-business use is free, including installation, private modifications and private self-hosting. Internal business or professional use, resale and paid services require prior written permission or a separate license from the rightsholder. No general redistribution permission is granted.
+
+See the [full German license and English translation](LICENSE); the German text governs. This is not a standard open-source license and has not undergone legal review. Previously granted MIT rights for historical TollGate versions remain intact. Existing downloads and older releases may retain their original terms; this change does not retroactively relicense them.
 
 Product concept and architecture: **Daniel Filipek (landjunge)**. AI assists with implementation and documentation. The documented checks do not replace an independent security audit; verifiable reviews are welcome.
 
