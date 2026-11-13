@@ -168,9 +168,7 @@ def check_package_json(repo: Path) -> list[str]:
             continue
         if license_field.startswith("SEE LICENSE IN "):
             target = (path.parent / license_field.removeprefix("SEE LICENSE IN ")).resolve()
-            if expected is not None and (
-                not target.is_file() or target.read_bytes() != expected
-            ):
+            if expected is not None and (not target.is_file() or target.read_bytes() != expected):
                 problems.append(f"{rel}: {target.name} stimmt nicht mit der Stamm-LICENSE überein")
     return problems
 
@@ -302,8 +300,7 @@ def self_test() -> None:
         (tauri_dir / "tauri.conf.json").unlink()
         (tauri_dir / "Cargo.toml").unlink()
         (repo / "LICENSE").write_text(
-            LICENSE_TITLE
-            + "\nDEUTSCH — maßgebliche Fassung\nENGLISH — translation\n4AllPass\n",
+            LICENSE_TITLE + "\nDEUTSCH — maßgebliche Fassung\nENGLISH — translation\n4AllPass\n",
             encoding="utf-8",
         )
         (repo / "pyproject.toml").write_text(
@@ -335,9 +332,7 @@ def main(argv: list[str] | None = None) -> int:
     if problems:
         print(f"{len(problems)} Abweichung(en), tool {TOOL_VERSION}")
         return 1
-    print(
-        f"OK {PRODUCTS[product]}: LICENSE, README und Paketmetadaten, tool {TOOL_VERSION}"
-    )
+    print(f"OK {PRODUCTS[product]}: LICENSE, README und Paketmetadaten, tool {TOOL_VERSION}")
     return 0
 
 
