@@ -1,0 +1,28 @@
+name: Personal Use License 1.0
+# Same check in 4AllPass, TollGate, ThreadDesk, KiraBridge and Agent Authority.
+# Confirms the Netzwerkpunkt Personal Use License 1.0 file, README wording and
+# packaging metadata. Does not publish packages or rewrite LICENSE.
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+permissions:
+  contents: read
+concurrency:
+  group: personal-use-license-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    name: Personal Use License
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Check the license rules
+        run: python3 -I scripts/check_personal_use_license.py --self-test
+      - name: Check LICENSE, README and package metadata
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python3 -I scripts/check_personal_use_license.py
