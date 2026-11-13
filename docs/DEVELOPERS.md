@@ -7,7 +7,7 @@ Setup, commands and language options moved from the README on 31 October 2026. T
 **Primary path: native Python — no Docker.** Protect demo needs no provider keys.
 
 ```bash
-git clone https://github.com/landjunge/tollgate.git && cd tollgate
+git clone https://github.com/landjunge/TollGate.git tollgate && cd tollgate
 python3 -m venv .venv && .venv/bin/pip install -e .
 ./scripts/ten-minute.sh
 # 60-second Protect story (optional, server on :8787):
@@ -150,7 +150,7 @@ sentences — a change to the JSON contract, tracked separately.
 | [N8N.md](../docs/N8N.md) · [OPENAI.md](../docs/OPENAI.md) | Integrations |
 | [CHANGELOG.md](../CHANGELOG.md) | Releases · **v1.0.0+** |
 
-**License:** All Rights Reserved · **Python:** ≥ 3.11 · **Repo:** [landjunge/tollgate](https://github.com/landjunge/tollgate)
+**License:** All Rights Reserved · **Python:** ≥ 3.11 · **Repo:** [landjunge/TollGate](https://github.com/landjunge/TollGate)
 
 ### Owned CLI stop-only adapter / Auftragseigener CLI-Stopp
 

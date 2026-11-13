@@ -12,13 +12,13 @@
     "admission"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/landjunge/tollgate",
+  "homepage": "https://github.com/landjunge/TollGate",
   "author": {
     "name": "landjunge"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/landjunge/tollgate.git",
+    "url": "https://github.com/landjunge/TollGate.git",
     "directory": "n8n-nodes-tollgate"
   },
   "main": "index.js",

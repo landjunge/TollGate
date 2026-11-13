@@ -1,6 +1,6 @@
 # Tollgate — Masterpiece Architecture
 
-**Product:** [landjunge/tollgate](https://github.com/landjunge/tollgate)  
+**Product:** [landjunge/TollGate](https://github.com/landjunge/TollGate)  
 **Status:** living design (2026-08-11)  
 **Team research:** industry gateways (LiteLLM, Portkey, OpenRouter, CF AI Gateway) + failure-mode analysis + current module audit.
 

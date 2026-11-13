@@ -2,7 +2,7 @@
 
 n8n holds **no** DeepSeek/Brave/Google secrets — only a consumer id + secret when auth is enabled.
 
-**Product:** https://github.com/landjunge/tollgate
+**Product:** https://github.com/landjunge/TollGate
 
 ## Run Tollgate
 

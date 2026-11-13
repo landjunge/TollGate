@@ -4,7 +4,7 @@
 
 **Tags:** ai, agents, python, opensource, devops
 
-**Canonical URL (set on Dev.to):** https://landjunge.github.io/tollgate/blog/launch.html
+**Canonical URL (set on Dev.to):** https://landjunge.github.io/TollGate/blog/launch.html
 
 ---
 
@@ -46,8 +46,8 @@ Safety layer between agents and the internet: **Protect · Route · Prove**.
 
 OpenAI drop-in `base_url`, Anthropic, MCP, n8n.
 
-Site: https://landjunge.github.io/tollgate/  
-Repo: https://github.com/landjunge/tollgate
+Site: https://landjunge.github.io/TollGate/  
+Repo: https://github.com/landjunge/TollGate
 
 ## Not LiteLLM
 
@@ -58,7 +58,7 @@ Tollgate is a **control plane**: hard denies *before* the call, freeze, audit, a
 ## 10-minute cold path (Protect needs no keys)
 
 ```bash
-git clone https://github.com/landjunge/tollgate.git && cd tollgate
+git clone https://github.com/landjunge/TollGate.git tollgate && cd tollgate
 python3 -m venv .venv && .venv/bin/pip install -e .
 ./scripts/ten-minute.sh
 # → blocked tool-loop + certificate
@@ -67,7 +67,7 @@ python3 -m venv .venv && .venv/bin/pip install -e .
 
 ## Production checklist
 
-Long form: https://landjunge.github.io/tollgate/blog/checklist.html
+Long form: https://landjunge.github.io/TollGate/blog/checklist.html
 
 ## Feedback we want
 

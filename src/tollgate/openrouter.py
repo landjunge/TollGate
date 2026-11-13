@@ -143,7 +143,7 @@ def chat(
         headers={
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://github.com/landjunge/tollgate",
+            "HTTP-Referer": "https://github.com/landjunge/TollGate",
             "X-Title": "Tollgate",
         },
         body={
