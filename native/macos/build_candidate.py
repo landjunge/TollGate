@@ -69,6 +69,7 @@ def main():
     ):
         raise ValueError("Explicit existing Python and original ICNS are required")
     original_icon_sha = sha(icon)
+    original_license_sha = sha(ROOT / "LICENSE")
     prerequisites = json.loads(
         run(str(runtime), "-I", "-B", str(native / "backend_host.py"), "--check").stdout
     )
@@ -86,6 +87,7 @@ def main():
         run("swiftc", *target, "-O", *source_files, "-o", str(macos / "TollGateHost"))
         shutil.copy2(native / "Info.plist", app / "Contents/Info.plist")
         shutil.copy2(icon, resources / "TollGate.icns")
+        shutil.copy2(ROOT / "LICENSE", resources / "LICENSE-TollGate.txt")
         shutil.copytree(
             ROOT / "src/tollgate",
             resources / "backend/src/tollgate",
@@ -113,6 +115,8 @@ def main():
         run("codesign", "--verify", "--deep", "--strict", "--verbose=2", str(out))
         if sha(out / "Contents/Resources/TollGate.icns") != original_icon_sha:
             raise ValueError("Original ICNS changed during build")
+        if sha(out / "Contents/Resources/LICENSE-TollGate.txt") != original_license_sha:
+            raise ValueError("Product LICENSE changed during build")
         result = {
             "kind": "local-macos-candidate",
             "source_pin": pin,
@@ -127,6 +131,8 @@ def main():
             "binary_sha256": sha(out / "Contents/MacOS/TollGateHost"),
             "icns_sha256": original_icon_sha,
             "original_icns": str(icon),
+            "product_license_path": "Contents/Resources/LICENSE-TollGate.txt",
+            "product_license_sha256": original_license_sha,
             "codesign_verified": True,
             "codesign_verify": verified.stderr,
             "codesign_display": signature.stderr,
