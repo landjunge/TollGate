@@ -4,6 +4,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
+from tollgate import dashboard_html
 from tollgate.server_v1 import app
 
 client = TestClient(app)
@@ -30,7 +31,11 @@ def test_dashboard_header_is_three_zone_64px_with_original_wordmark():
     assert "height: 64px" in html
     assert '<div class="np-appbar-host" data-product-header></div>' in html
     assert '<details class="header-more" id="headerMore">' in html
-    assert 'aria-label="Weitere Werkzeuge / More tools"' in html
+    assert 'aria-label="More tools"' in html
+    assert 'alt="TOLLGATE"' in html
+    german = dashboard_html.dashboard_html("de")
+    assert 'aria-label="Weitere Werkzeuge"' in german
+    assert 'alt="TOLLGATE"' in german
     match = re.search(
         r'class="brand-mark".*?src="data:image/svg\+xml;base64,([^"]+)"', html
     )

@@ -27,6 +27,8 @@ async def main():
                 await pg.wait_for_selector('[data-app-id="tollgate"][data-state="confirmed"]', timeout=8000)
                 await dismiss_onboarding(pg)
                 html_lang = await pg.evaluate("document.documentElement.lang")
+                summary_label = await pg.locator("#headerMore > summary").get_attribute("aria-label")
+                brand_alt = await pg.locator(".brand-mark").get_attribute("alt")
                 header = await pg.locator("header").evaluate("e => e.getBoundingClientRect().height")
                 center = await pg.evaluate("""() => {
                   const r = document.querySelector('.np-appbar-host').getBoundingClientRect();
@@ -112,6 +114,8 @@ async def main():
                 assert tools_total == 6 and tools_reachable, row
                 assert key_operable and setup_open, row
                 assert html_lang == lang, row
+                assert summary_label == ("Weitere Werkzeuge" if lang == "de" else "More tools"), row
+                assert brand_alt == "TOLLGATE", row
                 assert any("lang=de" in (href or "") for href in lang_hrefs[0:2]), row
                 assert any("lang=en" in (href or "") for href in lang_hrefs[0:2]), row
                 assert all("mode=" in (href or "") for href in lang_hrefs[2:4]), row

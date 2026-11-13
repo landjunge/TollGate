@@ -485,14 +485,14 @@ _TEMPLATE = r"""<!DOCTYPE html>
 
 <header>
   <div class="brand">
-    <img class="brand-mark" alt="TollGate" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNTAiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAzNTAgNjQiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iVG9sbEdhdGUiPjx0aXRsZT5Ub2xsR2F0ZTwvdGl0bGU+PHRleHQgeD0iMTc1IiB5PSI0NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjQ0IiBmb250LXdlaWdodD0iNzAwIiBsZXR0ZXItc3BhY2luZz0iLTEiPjx0c3BhbiBmaWxsPSIjZmZmZmZmIj5Ub2xsPC90c3Bhbj48dHNwYW4gZmlsbD0iI2U3Nzc0NSI+R2F0ZTwvdHNwYW4+PC90ZXh0Pjwvc3ZnPgo="/>
+    <img class="brand-mark" alt="{{ui.brand}}" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNTAiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAzNTAgNjQiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iVG9sbEdhdGUiPjx0aXRsZT5Ub2xsR2F0ZTwvdGl0bGU+PHRleHQgeD0iMTc1IiB5PSI0NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjQ0IiBmb250LXdlaWdodD0iNzAwIiBsZXR0ZXItc3BhY2luZz0iLTEiPjx0c3BhbiBmaWxsPSIjZmZmZmZmIj5Ub2xsPC90c3Bhbj48dHNwYW4gZmlsbD0iI2U3Nzc0NSI+R2F0ZTwvdHNwYW4+PC90ZXh0Pjwvc3ZnPgo="/>
     <em id="dayLabel"></em>
   </div>
   <div class="np-appbar-host" data-product-header></div>
   <div class="header-right">
     <div class="badge ok" id="statusBadge"><span class="dot"></span><span id="statusText">…</span></div>
     <details class="header-more" id="headerMore">
-      <summary aria-label="Weitere Werkzeuge / More tools" title="Weitere Werkzeuge / More tools">+</summary>
+      <summary aria-label="{{ui.more_tools}}" title="{{ui.more_tools}}">+</summary>
       <div class="more-panel">
         <div class="lang-switch" role="group" aria-label="{{ui.lang_label}}">
           <a href="{{ui.lang_de_href}}" hreflang="de" lang="de" class="{{ui.lang_de_class}}">DE</a>
