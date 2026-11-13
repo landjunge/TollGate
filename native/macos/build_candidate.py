@@ -92,6 +92,7 @@ def main():
             ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
         )
         shutil.copy2(native / "backend_host.py", resources / "backend/backend_host.py")
+        shutil.copy2(ROOT / "LICENSE", resources / "LICENSE")
         (resources / "runtime-python.txt").write_text(str(runtime) + "\n")
         (resources / "runtime-prerequisite.json").write_text(
             json.dumps(prerequisites, indent=2) + "\n"

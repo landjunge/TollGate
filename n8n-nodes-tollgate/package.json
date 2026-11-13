@@ -11,7 +11,7 @@
     "openai",
     "admission"
   ],
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/landjunge/tollgate",
   "author": {
     "name": "landjunge"
@@ -26,7 +26,8 @@
     "credentials",
     "nodes",
     "index.js",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
