@@ -130,8 +130,10 @@ def check_pyproject(repo: Path) -> list[str]:
         ]
     if "LICENSE" not in text and "LicenseRef-Netzwerkpunkt-Personal-Use-1.0" not in text:
         return [
-            "pyproject.toml: license muss LICENSE oder "
-            "LicenseRef-Netzwerkpunkt-Personal-Use-1.0 nennen"
+            (
+                "pyproject.toml: license muss LICENSE oder "
+                "LicenseRef-Netzwerkpunkt-Personal-Use-1.0 nennen"
+            )
         ]
     return []
 
@@ -145,9 +147,8 @@ def check_package_json(repo: Path) -> list[str]:
             continue
         data = json.loads(path.read_text(encoding="utf-8"))
         license_field = data.get("license")
-        if not isinstance(license_field, str) or not (
-            license_field.startswith("SEE LICENSE IN ")
-            or license_field.startswith("LicenseRef-Netzwerkpunkt")
+        if not isinstance(license_field, str) or not license_field.startswith(
+            ("SEE LICENSE IN ", "LicenseRef-Netzwerkpunkt")
         ):
             problems.append(f"{rel}: license muss SEE LICENSE IN LICENSE sein")
             continue
