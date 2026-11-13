@@ -18,7 +18,7 @@ import re
 import sys
 from pathlib import Path
 
-TOOL_VERSION = "1.0.1"
+TOOL_VERSION = "1.0.2"
 LICENSE_TITLE = "Netzwerkpunkt Personal Use License 1.0"
 
 PRODUCTS = {
@@ -180,12 +180,20 @@ def check_tauri(repo: Path) -> list[str]:
     for conf in repo.glob("**/tauri.conf.json"):
         if "node_modules" in conf.parts:
             continue
-        text = conf.read_text(encoding="utf-8")
         rel = conf.relative_to(repo).as_posix()
-        if "LICENSE" not in text:
-            problems.append(f"{rel}: bundle muss LICENSE einbinden")
+        bundle = json.loads(conf.read_text(encoding="utf-8")).get("bundle") or {}
+        license_file = str(bundle.get("licenseFile") or "")
+        license_id = str(bundle.get("license") or "")
+        ok_file = license_file.endswith("LICENSE")
+        ok_id = license_id == ALLOWED_LICENSE_REF or LICENSE_TITLE in license_id
+        if not (ok_file or ok_id):
+            problems.append(
+                f"{rel}: bundle.licenseFile oder bundle.license muss Personal Use 1.0 sein"
+            )
         cargo = conf.parent / "Cargo.toml"
-        if cargo.is_file() and "LICENSE" not in cargo.read_text(encoding="utf-8"):
+        if cargo.is_file() and not re.search(
+            r'(?m)^license-file\s*=\s*".*LICENSE"', cargo.read_text(encoding="utf-8")
+        ):
             problems.append(
                 f"{cargo.relative_to(repo).as_posix()}: license-file muss LICENSE nennen"
             )
@@ -263,6 +271,36 @@ def self_test() -> None:
         if not any("packages/crypto/package.json" in p for p in problems):
             failed.append(f"workspace: {problems}")
         (nested / "package.json").unlink()
+        tauri_dir = repo / "src-tauri"
+        tauri_dir.mkdir()
+        (tauri_dir / "tauri.conf.json").write_text(
+            json.dumps(
+                {
+                    "bundle": {
+                        "license": "MIT",
+                        "resources": ["../LICENSE"],
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        problems = run_checks(repo, "threaddesk")
+        if not any("tauri.conf.json" in p for p in problems):
+            failed.append(f"tauri-mit: {problems}")
+        (tauri_dir / "tauri.conf.json").write_text(
+            json.dumps({"bundle": {"licenseFile": "../LICENSE"}}),
+            encoding="utf-8",
+        )
+        (tauri_dir / "Cargo.toml").write_text(
+            '[package]\nname = "probe"\nlicense-file = "../LICENSE"\n',
+            encoding="utf-8",
+        )
+        problems = run_checks(repo, "threaddesk")
+        extra = [p for p in problems if "tauri.conf.json" in p or "Cargo.toml" in p]
+        if extra:
+            failed.append(f"tauri-ok: {extra}")
+        (tauri_dir / "tauri.conf.json").unlink()
+        (tauri_dir / "Cargo.toml").unlink()
         (repo / "LICENSE").write_text(
             LICENSE_TITLE
             + "\nDEUTSCH — maßgebliche Fassung\nENGLISH — translation\n4AllPass\n",
