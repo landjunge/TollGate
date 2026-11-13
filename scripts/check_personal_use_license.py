@@ -18,7 +18,7 @@ import re
 import sys
 from pathlib import Path
 
-TOOL_VERSION = "1.0.0"
+TOOL_VERSION = "1.0.1"
 LICENSE_TITLE = "Netzwerkpunkt Personal Use License 1.0"
 
 PRODUCTS = {
@@ -44,11 +44,8 @@ FOREIGN = (
     "Agent Authority",
     "BlockDesign",
 )
-FORBIDDEN_PYPROJECT = re.compile(
-    r'license\s*=\s*\{\s*text\s*=\s*"(MIT|Proprietary|Apache-2\.0|BSD[^"]*|ISC)"',
-    re.IGNORECASE,
-)
-PACKAGE_JSON_PATHS = (
+ALLOWED_LICENSE_REF = "LicenseRef-Netzwerkpunkt-Personal-Use-1.0"
+PACKAGE_JSON_FIXED = (
     "package.json",
     "frontend/package.json",
     "extension/package.json",
@@ -117,34 +114,51 @@ def check_readmes(repo: Path) -> list[str]:
     return problems
 
 
+def project_table(text: str) -> str:
+    match = re.search(r"(?ms)^\[project\](.*?)(?=^\[|\Z)", text)
+    return match.group(1) if match else ""
+
+
 def check_pyproject(repo: Path) -> list[str]:
     path = repo / "pyproject.toml"
     if not path.is_file():
         return []
-    text = path.read_text(encoding="utf-8")
-    if not re.search(r"^\[project\]", text, re.MULTILINE):
+    section = project_table(path.read_text(encoding="utf-8"))
+    if not section:
         return []
-    if FORBIDDEN_PYPROJECT.search(text):
-        return [
-            "pyproject.toml: license muss auf LICENSE zeigen, nicht MIT/Proprietary"
-        ]
-    if "LICENSE" not in text and "LicenseRef-Netzwerkpunkt-Personal-Use-1.0" not in text:
-        return [
-            (
-                "pyproject.toml: license muss LICENSE oder "
-                "LicenseRef-Netzwerkpunkt-Personal-Use-1.0 nennen"
-            )
-        ]
-    return []
+    as_string = re.search(r'(?m)^license\s*=\s*"([^"]+)"', section)
+    as_file = re.search(r'(?m)^license\s*=\s*\{\s*file\s*=\s*"([^"]+)"', section)
+    as_text = re.search(r'(?m)^license\s*=\s*\{\s*text\s*=\s*"([^"]+)"', section)
+    if as_string:
+        value = as_string.group(1)
+        if value == ALLOWED_LICENSE_REF or LICENSE_TITLE in value:
+            return []
+        return [f"pyproject.toml: license {value!r} ist nicht Personal Use 1.0"]
+    if as_file:
+        if as_file.group(1) == "LICENSE":
+            return []
+        return [f"pyproject.toml: license.file muss LICENSE sein, nicht {as_file.group(1)}"]
+    if as_text:
+        value = as_text.group(1)
+        if LICENSE_TITLE in value or value == ALLOWED_LICENSE_REF:
+            return []
+        return [f"pyproject.toml: license.text {value!r} ist nicht Personal Use 1.0"]
+    return ["pyproject.toml: license-Feld fehlt"]
+
+
+def package_json_files(repo: Path) -> list[Path]:
+    paths = [repo / rel for rel in PACKAGE_JSON_FIXED if (repo / rel).is_file()]
+    for path in sorted(repo.glob("packages/*/package.json")):
+        if "node_modules" not in path.parts:
+            paths.append(path)
+    return paths
 
 
 def check_package_json(repo: Path) -> list[str]:
     problems = []
     expected = (repo / "LICENSE").read_bytes() if (repo / "LICENSE").is_file() else None
-    for rel in PACKAGE_JSON_PATHS:
-        path = repo / rel
-        if not path.is_file():
-            continue
+    for path in package_json_files(repo):
+        rel = path.relative_to(repo).as_posix()
         data = json.loads(path.read_text(encoding="utf-8"))
         license_field = data.get("license")
         if not isinstance(license_field, str) or not license_field.startswith(
@@ -229,6 +243,26 @@ def self_test() -> None:
         problems = run_checks(repo, "threaddesk")
         if not any("pyproject.toml" in p for p in problems):
             failed.append(f"proprietary: {problems}")
+        (repo / "pyproject.toml").write_text(
+            '[project]\nname = "probe"\nlicense = "MIT"\nlicense-files = ["LICENSE"]\n',
+            encoding="utf-8",
+        )
+        problems = run_checks(repo, "threaddesk")
+        if not any("MIT" in p for p in problems):
+            failed.append(f"mit-string: {problems}")
+        (repo / "pyproject.toml").write_text(
+            '[project]\nname = "probe"\nlicense = { file = "LICENSE" }\n',
+            encoding="utf-8",
+        )
+        nested = repo / "packages" / "crypto"
+        nested.mkdir(parents=True)
+        (nested / "package.json").write_text(
+            '{"name":"probe-crypto","license":"MIT"}\n', encoding="utf-8"
+        )
+        problems = run_checks(repo, "threaddesk")
+        if not any("packages/crypto/package.json" in p for p in problems):
+            failed.append(f"workspace: {problems}")
+        (nested / "package.json").unlink()
         (repo / "LICENSE").write_text(
             LICENSE_TITLE
             + "\nDEUTSCH — maßgebliche Fassung\nENGLISH — translation\n4AllPass\n",
