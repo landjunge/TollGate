@@ -1,0 +1,26 @@
+name: Keep newest installers
+# After each published release, delete older installer binaries so GitHub
+# only offers the current shipping line (desktop plus KiraBridge linux-*).
+# Tags, release notes, LICENSE, checksums and notices stay.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: prune-old-installers
+  cancel-in-progress: false
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check prune rules
+        run: python3 -I scripts/prune_old_installers.py --self-test
+      - name: Delete older installer assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python3 -I scripts/prune_old_installers.py --apply
