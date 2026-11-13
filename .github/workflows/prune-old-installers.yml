@@ -4,7 +4,9 @@ name: Keep newest installers
 # Tags, release notes, LICENSE, checksums and notices stay.
 on:
   release:
-    types: [published]
+    types: [published, edited]
+  schedule:
+    - cron: "37 */6 * * *"
   workflow_dispatch:
 permissions:
   contents: write

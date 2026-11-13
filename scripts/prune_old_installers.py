@@ -30,11 +30,14 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 
-TOOL_VERSION = "1.0.0"
+TOOL_VERSION = "1.0.1"
 API = "https://api.github.com"
 USER_AGENT = "newest-stable-downloads"
 
+# Same installer extensions as update_readme_downloads.py, plus wheels and
+# install-*.sh which are installation files but never README buttons.
 INSTALLER = re.compile(
     r"(?:install-.*\.sh$|\.(?:dmg|pkg|exe|msi|appimage|deb|rpm|apk|whl|zip|tar\.gz)$)",
     re.IGNORECASE,
@@ -43,6 +46,20 @@ EVIDENCE = re.compile(
     r"(?:^LICENSE(?:\.[A-Za-z0-9]+)?$|checksum|sha256|sha512|sbom|"
     r"third-party-notices|(?:^|[^A-Za-z])notices|\.sig$|\.asc$)",
     re.IGNORECASE,
+)
+# Matches the README updater's NOT_PACKAGE names so a source/debug archive
+# cannot become the shipping line and wipe the previous desktop installers.
+NOT_SHIPPING = re.compile(
+    r"(?:checksum|sha256|sha512|sbom|manifest|symbols|debug|notices|evidence|"
+    r"source|\.sig$|\.asc$|\.whl$|-review|build-only|historical-)",
+    re.IGNORECASE,
+)
+PIN_DOWNLOAD = re.compile(
+    r"gh\s+release\s+download\s+([^\s]+)",
+    re.IGNORECASE,
+)
+PIN_CHANNEL = re.compile(
+    r"""(?:FOURALLPASS_RELEASE:-|CHANNEL=\{?\$\{[^}]+:-|else\s*\{\s*")(v?[0-9][^"'\s}]+)""",
 )
 
 
@@ -67,21 +84,37 @@ def published(releases):
 def is_installer(name: str) -> bool:
     if not name or EVIDENCE.search(name):
         return False
+    if name.lower().endswith(".whl"):
+        return True
+    if NOT_SHIPPING.search(name):
+        return False
     return bool(INSTALLER.search(name))
 
 
-def has_installer(release) -> bool:
-    return any(is_installer(a.get("name", "")) for a in release.get("assets") or [])
+def is_shipping_asset(asset) -> bool:
+    """True when this asset may select the current shipping release."""
+    name = asset.get("name") or ""
+    if asset.get("state") not in (None, "uploaded"):
+        return False
+    if not asset.get("size"):
+        return False
+    if not name or EVIDENCE.search(name) or NOT_SHIPPING.search(name):
+        return False
+    return bool(INSTALLER.search(name))
+
+
+def has_shipping_installer(release) -> bool:
+    return any(is_shipping_asset(a) for a in release.get("assets") or [])
 
 
 def newest_kept(releases):
-    """Newest published installer release per shipping lane."""
+    """Newest published release per lane with a finished shipping installer."""
     kept = {}
     for release in published(releases):
         wanted = lane(release.get("tag_name") or "")
         if wanted is None or wanted in kept:
             continue
-        if not has_installer(release):
+        if not has_shipping_installer(release):
             continue
         kept[wanted] = release
         if "desktop" in kept and "remote" in kept:
@@ -89,9 +122,29 @@ def newest_kept(releases):
     return kept
 
 
-def plan(releases):
+def pinned_tags(root="."):
+    """Tags still named by install scripts or workflow fixture downloads."""
+    tags = set()
+    root = Path(root)
+    paths = list(root.glob("scripts/install.*")) + list(root.glob(".github/workflows/*.yml"))
+    for path in paths:
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for match in PIN_DOWNLOAD.finditer(text):
+            tag = match.group(1).strip("\"'")
+            if tag and not tag.startswith("-") and not tag.startswith("$"):
+                tags.add(tag)
+        for match in PIN_CHANNEL.finditer(text):
+            tags.add(match.group(1))
+    return tags
+
+
+def plan(releases, extra_keep_tags=()):
     kept = newest_kept(releases)
     keep_tags = {r["tag_name"] for r in kept.values()}
+    keep_tags.update(extra_keep_tags)
     delete = []
     keep_installers = []
     evidence = []
@@ -260,6 +313,22 @@ def self_test():
         "published_at": "2026-08-11T21:11:53Z",
         "assets": [],
     }
+    source_newer = {
+        "tag_name": "v0.3.0",
+        "draft": False,
+        "published_at": "2026-11-12T00:00:00Z",
+        "assets": [
+            {"id": 71, "name": "ThreadDesk-source.tar.gz", "size": 10, "state": "uploaded"},
+        ],
+    }
+    incomplete = {
+        "tag_name": "v0.3.1",
+        "draft": False,
+        "published_at": "2026-11-13T00:00:00Z",
+        "assets": [
+            {"id": 81, "name": "ThreadDesk-macOS.dmg", "size": 0, "state": "starter"},
+        ],
+    }
 
     cases = [
         (
@@ -268,6 +337,7 @@ def self_test():
             ["v0.1.2-rc.3"],
             [11],
             [1],
+            (),
         ),
         (
             "KiraBridge keeps desktop plus linux independently",
@@ -275,6 +345,7 @@ def self_test():
             ["linux-v0.8.0rc41", "v0.1.2-rc.3"],
             [31, 41, 51, 61],
             [1, 21],
+            (),
         ),
         (
             "source-only repo deletes nothing",
@@ -282,10 +353,35 @@ def self_test():
             [],
             [],
             [],
+            (),
+        ),
+        (
+            "source archive does not displace desktop installers",
+            [source_newer, desktop_new, desktop_old],
+            ["v0.1.2-rc.3"],
+            [11],
+            [1],
+            (),
+        ),
+        (
+            "incomplete upload does not displace desktop installers",
+            [incomplete, desktop_new, desktop_old],
+            ["v0.1.2-rc.3"],
+            [81, 11],
+            [1],
+            (),
+        ),
+        (
+            "workflow fixture tag keeps its wheel",
+            [desktop_new, wheel_old],
+            ["v0.1.2-rc.3", "v0.8.0rc14"],
+            [],
+            [1, 61],
+            ("v0.8.0rc14",),
         ),
     ]
-    for title, releases, keep_tags, delete_ids, keep_ids in cases:
-        result = plan(releases)
+    for title, releases, keep_tags, delete_ids, keep_ids, extra in cases:
+        result = plan(releases, extra_keep_tags=extra)
         if result["keep_tags"] != keep_tags:
             failed.append(f"{title}: keep_tags {result['keep_tags']} != {keep_tags}")
         got_delete = [row["id"] for row in result["delete"]]
@@ -307,6 +403,12 @@ def self_test():
         failed.append("evidence files classified as installers")
     if not is_installer("install-macos.sh") or not is_installer("app.whl"):
         failed.append("install-macos.sh or wheel not classified as installer")
+    if is_installer("ThreadDesk-source.tar.gz") or is_shipping_asset(
+        {"name": "ThreadDesk-source.tar.gz", "size": 10, "state": "uploaded"}
+    ):
+        failed.append("source archive classified as shipping installer")
+    if is_shipping_asset({"name": "App.dmg", "size": 0, "state": "starter"}):
+        failed.append("empty starter upload classified as shipping")
     if (
         lane("linux-v0.8.0rc41") != "remote"
         or lane("windows-v1") is not None
@@ -354,13 +456,16 @@ def main(argv):
         return 0
     apply_changes = "--apply" in args
     repo = _repo()
-    result = plan(all_releases(repo))
+    extra = pinned_tags()
+    result = plan(all_releases(repo), extra_keep_tags=extra)
     report(result, repo)
+    if extra:
+        print("pinned_tags=" + ",".join(sorted(extra)))
     if not apply_changes:
         print("dry-run: nothing deleted (pass --apply to delete older installers)")
         return 0
     apply(repo, result)
-    verify = plan(all_releases(repo))
+    verify = plan(all_releases(repo), extra_keep_tags=extra)
     leftover = verify["delete"]
     if leftover:
         names = ", ".join(f"{row['tag']}/{row['name']}" for row in leftover[:8])
