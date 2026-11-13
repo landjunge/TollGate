@@ -89,21 +89,46 @@ _TEMPLATE = r"""<!DOCTYPE html>
     }
   }
 
-  /* Header */
+  /* Header: 64-px host bar, three balanced zones; the appbar is the center. */
   header {
-    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-    padding: .85rem 1.5rem;
+    display: grid;
+    grid-template-columns: minmax(190px, 1fr) auto minmax(190px, 1fr);
+    align-items: center; gap: 1rem;
+    height: 64px; padding: 0 1.5rem;
     border-bottom: 1px solid var(--line);
     background: rgba(18,19,22,.85);
     backdrop-filter: blur(16px) saturate(1.2);
     position: sticky; top: 0; z-index: 20;
   }
   .brand {
-    display: flex; align-items: baseline; gap: .55rem;
-    font-weight: 750; letter-spacing: .06em; font-size: var(--text-base);
+    display: flex; align-items: center; gap: .55rem;
+    min-width: 0;
   }
+  .brand-mark { display: block; height: 28px; width: auto; }
   .brand em { font-style: normal; color: var(--muted); font-weight: 500; letter-spacing: 0; font-size: var(--text-sm); }
-  .header-right { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; }
+  .header-right {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: .5rem; min-width: 0;
+  }
+  .np-appbar-host { grid-column: 2; justify-self: center; display: flex; align-items: center; }
+  .header-more { position: relative; }
+  .header-more > summary {
+    list-style: none; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--fg);
+    font-size: 20px; line-height: 1; user-select: none;
+  }
+  .header-more > summary::-webkit-details-marker { display: none; }
+  .header-more > summary::marker { content: ""; }
+  .header-more[open] > summary { border-color: var(--line2); }
+  .more-panel {
+    position: absolute; right: 0; top: calc(100% + 10px); z-index: 30;
+    display: grid; gap: .55rem; padding: .75rem; min-width: 280px;
+    background: var(--panel); border: 1px solid var(--line);
+    box-shadow: 0 12px 32px rgba(0,0,0,.35);
+  }
+  .more-panel .auth-bar { max-width: 100%; }
   .auth-bar {
     display: flex; align-items: center; gap: .4rem;
     font-size: var(--text-sm); color: var(--muted);
@@ -410,13 +435,21 @@ _TEMPLATE = r"""<!DOCTYPE html>
   #secBanner.bad {
     background: var(--bad-dim); color: var(--bad); border-color: var(--bad);
   }
-  header { flex-wrap: wrap; }
-  .header-right { min-width: 0; max-width: 100%; }
   .auth-bar { max-width: 100%; }
-  .auth-bar input { width: 5rem; min-width: 0; }
-  /* Brand contours (after the component rules). */
-  .card, .auth-bar, .badge, .lang-switch { border-color: var(--brand); }
+  .auth-bar input { width: 7.5rem; min-width: 0; }
+  /* Neutral decorative contours; semantic badge colors keep their own rules. */
+  .card, .auth-bar, .lang-switch { border-color: var(--line); }
   .np-appbar-button:focus-visible { outline-color: var(--np-text); }
+  @media (max-width: 760px) {
+    header {
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: .4rem; padding: 0 .75rem;
+    }
+    .brand em { display: none; }
+    .brand-mark { height: 24px; }
+    .more-panel { right: -.75rem; min-width: 260px; }
+    .auth-bar input { width: 5rem; }
+  }
 </style>
 </head>
 <body class="np-ui">
@@ -451,26 +484,34 @@ _TEMPLATE = r"""<!DOCTYPE html>
 </div>
 
 <header>
-  <div class="brand">{{ui.brand}} <em id="dayLabel"></em></div>
+  <div class="brand">
+    <img class="brand-mark" alt="TollGate" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNTAiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAzNTAgNjQiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iVG9sbEdhdGUiPjx0aXRsZT5Ub2xsR2F0ZTwvdGl0bGU+PHRleHQgeD0iMTc1IiB5PSI0NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjQ0IiBmb250LXdlaWdodD0iNzAwIiBsZXR0ZXItc3BhY2luZz0iLTEiPjx0c3BhbiBmaWxsPSIjZmZmZmZmIj5Ub2xsPC90c3Bhbj48dHNwYW4gZmlsbD0iI2U3Nzc0NSI+R2F0ZTwvdHNwYW4+PC90ZXh0Pjwvc3ZnPgo="/>
+    <em id="dayLabel"></em>
+  </div>
+  <div class="np-appbar-host" data-product-header></div>
   <div class="header-right">
-    <div class="np-appbar-host" data-product-header></div>
-    <div class="lang-switch" role="group" aria-label="{{ui.lang_label}}">
-      <a href="{{ui.lang_de_href}}" hreflang="de" lang="de" class="{{ui.lang_de_class}}">DE</a>
-      <a href="{{ui.lang_en_href}}" hreflang="en" lang="en" class="{{ui.lang_en_class}}">EN</a>
-    </div>
-    <!-- Klartext ist der Normalfall, Fachsprache ist zuschaltbar. -->
-    <div class="lang-switch" role="group" aria-label="{{ui.register_label}}">
-      <a href="{{ui.register_plain_href}}" title="{{ui.register.plain_hint}}"
-         class="{{ui.register_plain_class}}">{{ui.register.plain}}</a>
-      <a href="{{ui.register_expert_href}}" title="{{ui.register.expert_hint}}"
-         class="{{ui.register_expert_class}}">{{ui.register.expert}}</a>
-    </div>
-    <button type="button" class="ghost sm" id="btnSetup">{{ui.setup}}</button>
-    <div class="auth-bar" title="{{ui.key_hint}}">
-      <span>{{ui.key}}</span>
-      <input id="apiKey" placeholder="desk" value="desk" autocomplete="off"/>
-    </div>
     <div class="badge ok" id="statusBadge"><span class="dot"></span><span id="statusText">…</span></div>
+    <details class="header-more" id="headerMore">
+      <summary aria-label="Weitere Werkzeuge / More tools" title="Weitere Werkzeuge / More tools">+</summary>
+      <div class="more-panel">
+        <div class="lang-switch" role="group" aria-label="{{ui.lang_label}}">
+          <a href="{{ui.lang_de_href}}" hreflang="de" lang="de" class="{{ui.lang_de_class}}">DE</a>
+          <a href="{{ui.lang_en_href}}" hreflang="en" lang="en" class="{{ui.lang_en_class}}">EN</a>
+        </div>
+        <!-- Klartext ist der Normalfall, Fachsprache ist zuschaltbar. -->
+        <div class="lang-switch" role="group" aria-label="{{ui.register_label}}">
+          <a href="{{ui.register_plain_href}}" title="{{ui.register.plain_hint}}"
+             class="{{ui.register_plain_class}}">{{ui.register.plain}}</a>
+          <a href="{{ui.register_expert_href}}" title="{{ui.register.expert_hint}}"
+             class="{{ui.register_expert_class}}">{{ui.register.expert}}</a>
+        </div>
+        <button type="button" class="ghost sm" id="btnSetup">{{ui.setup}}</button>
+        <div class="auth-bar" title="{{ui.key_hint}}">
+          <span>{{ui.key}}</span>
+          <input id="apiKey" placeholder="desk" value="desk" autocomplete="off"/>
+        </div>
+      </div>
+    </details>
   </div>
 </header>
 
@@ -1351,6 +1392,22 @@ window.__tgFamilySwitch = function(appId) {
     handler.postMessage({requestId: requestId, appId: appId});
   });
 };
+</script>
+<script>
+(() => {
+  const more = document.getElementById("headerMore");
+  if (!more) return;
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && more.open) {
+      more.open = false;
+      const summary = more.querySelector("summary");
+      if (summary) summary.focus();
+    }
+  });
+  document.addEventListener("click", (event) => {
+    if (more.open && !more.contains(event.target)) more.open = false;
+  });
+})();
 </script>
 <script type="module">
 import {mountProductHeader} from "/static/np/networkpunkt-product-header.js";
