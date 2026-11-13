@@ -62,7 +62,7 @@ TollGate prüft angeschlossene Modell- und Werkzeugaufrufe, bevor sie ausgeführ
 
 [Schnellstart aus dem Quellcode](docs/QUICKSTART.md) · [Quellcode ansehen](https://github.com/landjunge/tollgate/tree/main)
 
-Es gibt keinen veröffentlichten Desktop-Installer. Das [Ankündigungsrelease](https://github.com/landjunge/tollgate/releases/tag/announce-public) enthält keine fertigen Pakete. Die Nutzung benötigt eine Erlaubnis gemäß [Lizenz](LICENSE).
+Es gibt keinen veröffentlichten Desktop-Installer. Das [Ankündigungsrelease](https://github.com/landjunge/tollgate/releases/tag/announce-public) enthält keine fertigen Pakete. Private Nutzung ist nach der [Lizenz](LICENSE) kostenlos; geschäftliche Nutzung braucht schriftliche Erlaubnis.
 
 ## Wobei TollGate dir hilft
 
@@ -105,7 +105,11 @@ Einzelne Schnittstellen sind vorhanden. Ein vollständig eingerichteter und gepr
 
 ## Lizenz
 
-[Source-available, alle Rechte vorbehalten](LICENSE). Sichtbarer Quellcode erteilt keine allgemeine Nutzungs- oder Weiterverteilungserlaubnis. Historische MIT-Lizenzrechte bleiben erhalten.
+**Netzwerkpunkt Personal Use License 1.0 — individuelle Source-available-Lizenz.**
+
+Private, nicht geschäftliche Nutzung ist kostenlos erlaubt, einschließlich Installation, eigener privater Anpassungen und privatem Self-Hosting. Interner Firmeneinsatz, berufliche Nutzung, Weiterverkauf und kostenpflichtige Dienste benötigen eine vorherige schriftliche Erlaubnis beziehungsweise gesonderte Lizenz des Rechteinhabers. Es gibt keine allgemeine Weiterverteilungserlaubnis.
+
+Maßgeblich ist die [vollständige Lizenz auf Deutsch mit englischer Übersetzung](LICENSE). Dies ist keine Open-Source-Standardlizenz; eine anwaltliche Prüfung wurde nicht durchgeführt. Frühere MIT-Rechte an historischen TollGate-Fassungen bleiben bestehen. Vorhandene Downloads und ältere Releases können noch unter ihren damaligen Bedingungen stehen; diese Änderung schreibt ihre Lizenz nicht rückwirkend um.
 
 Produktidee und Architektur: **Daniel Filipek (landjunge)**. KI unterstützt Implementierung und Dokumentation. Die dokumentierten Prüfungen ersetzen kein unabhängiges Sicherheitsaudit; nachvollziehbare Reviews sind willkommen.
 
