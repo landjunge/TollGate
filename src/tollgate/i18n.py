@@ -550,6 +550,10 @@ CATALOG: dict[str, dict[str, str]] = {
         "de": "TOLLGATE",
         "en": "TOLLGATE",
     },
+    "ui.more_tools": {
+        "de": "Weitere Werkzeuge",
+        "en": "More tools",
+    },
     "ui.setup": {
         "de": "Einrichten",
         "en": "Setup",
