@@ -9,7 +9,7 @@
 ## 1. Install & run cold path
 
 ```bash
-git clone https://github.com/landjunge/tollgate.git && cd tollgate
+git clone https://github.com/landjunge/TollGate.git tollgate && cd tollgate
 python3 -m venv .venv && .venv/bin/pip install -e .
 ./scripts/ten-minute.sh
 ```

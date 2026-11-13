@@ -239,6 +239,6 @@ docs/HILFE.md · docs/USER_GUIDE.md
 2. `tollgate paths`  
 3. `tollgate status`  
 4. `GET /v1/health`  
-5. Open issue: https://github.com/landjunge/tollgate  
+5. Open issue: https://github.com/landjunge/TollGate  
 
 **Pay the toll — or don't call.**

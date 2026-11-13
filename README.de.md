@@ -9,20 +9,20 @@
 <p align="center">
   <a href="https://github.com/landjunge/KiraBridge/blob/main/README.de.md" title="KiraBridge"><img src="assets/readme/normalized/KiraBridge-small.svg" alt="KiraBridge" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/threaddesk#readme" title="ThreadDesk"><img src="assets/readme/normalized/ThreadDesk-small.svg" alt="ThreadDesk" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/ThreadDesk#readme" title="ThreadDesk"><img src="assets/readme/normalized/ThreadDesk-small.svg" alt="ThreadDesk" width="48" height="48"></a>
   &nbsp;
   <a href="https://github.com/landjunge/4AllPass#readme" title="4AllPass"><img src="assets/readme/normalized/4AllPass-small.svg" alt="4AllPass" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/agent-authority-lab#readme" title="Agent Authority"><img src="assets/readme/normalized/Agent-Authority-small.svg" alt="Agent Authority" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/AgentAuthority#readme" title="Agent Authority"><img src="assets/readme/normalized/Agent-Authority-small.svg" alt="Agent Authority" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/blockdesign#readme" title="BlockDesign"><img src="assets/readme/normalized/BlockDesign-small.svg" alt="BlockDesign" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/BlockDesign#readme" title="BlockDesign"><img src="assets/readme/normalized/BlockDesign-small.svg" alt="BlockDesign" width="48" height="48"></a>
 </p>
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/design/wordmarks/TollGate-dark.svg"><img src="assets/design/wordmarks/TollGate-light.svg" alt="TollGate" width="280"></picture></p>
 
 <!-- AUTO-DOWNLOADS:START -->
 <p align="center">
-  <a href="https://github.com/landjunge/tollgate/archive/refs/heads/main.zip" title="tollgate-main.zip herunterladen / download"><img src="assets/readme/download-source.svg" alt="Download Quellcode / Source ZIP · 1.0.12" width="190" height="52"></a>
+  <a href="https://github.com/landjunge/TollGate/archive/refs/heads/main.zip" title="TollGate-main.zip herunterladen / download"><img src="assets/readme/download-source.svg" alt="Download Quellcode / Source ZIP · 1.0.12" width="190" height="52"></a>
 </p>
 <!-- AUTO-DOWNLOADS:END -->
 
@@ -35,7 +35,7 @@
 **Protect-Demo aus dem Quellcode (Python 3.11+, Nutzung nur gemäß [LICENSE](LICENSE)):**
 
 ```sh
-git clone https://github.com/landjunge/tollgate.git && cd tollgate
+git clone https://github.com/landjunge/TollGate.git tollgate && cd tollgate
 python3 -m venv .venv && .venv/bin/pip install -e .
 ./scripts/ten-minute.sh
 ```
@@ -60,9 +60,9 @@ TollGate prüft angeschlossene Modell- und Werkzeugaufrufe, bevor sie ausgeführ
 
 **Quellstand: 1.0.12 · In Entwicklung · Python 3.11 oder neuer**
 
-[Schnellstart aus dem Quellcode](docs/QUICKSTART.md) · [Quellcode ansehen](https://github.com/landjunge/tollgate/tree/main)
+[Schnellstart aus dem Quellcode](docs/QUICKSTART.md) · [Quellcode ansehen](https://github.com/landjunge/TollGate/tree/main)
 
-Es gibt keinen veröffentlichten Desktop-Installer. Das [Ankündigungsrelease](https://github.com/landjunge/tollgate/releases/tag/announce-public) enthält keine fertigen Pakete. Private Nutzung ist nach der [Lizenz](LICENSE) kostenlos; geschäftliche Nutzung braucht schriftliche Erlaubnis.
+Es gibt keinen veröffentlichten Desktop-Installer. Das [Ankündigungsrelease](https://github.com/landjunge/TollGate/releases/tag/announce-public) enthält keine fertigen Pakete. Private Nutzung ist nach der [Lizenz](LICENSE) kostenlos; geschäftliche Nutzung braucht schriftliche Erlaubnis.
 
 ## Wobei TollGate dir hilft
 
@@ -95,11 +95,11 @@ Die fünf Produkte bleiben eigenständig. Geplant ist ein gemeinsamer Ablauf mit
 
 | Produkt | Aufgabe im gemeinsamen Ablauf |
 | --- | --- |
-| [ThreadDesk](https://github.com/landjunge/threaddesk/blob/main/README.md) | Bewahrt Projektstand, Wissen und Ergebnisse. |
+| [ThreadDesk](https://github.com/landjunge/ThreadDesk/blob/main/README.md) | Bewahrt Projektstand, Wissen und Ergebnisse. |
 | [KiraBridge](https://github.com/landjunge/KiraBridge/blob/main/README.de.md) | Vermittelt Aufträge, Rückfragen und Antworten zwischen Chat, lokalen Agenten und Werkzeugen. |
 | [4AllPass](https://github.com/landjunge/4AllPass/blob/main/README.md) | Verwaltet Zugangsdaten; soll gezielt erlaubte Zugriffe ermöglichen. |
-| [TollGate](https://github.com/landjunge/tollgate/blob/main/README.de.md) | Prüft angeschlossene Aufrufe und setzt Verbrauchsgrenzen und Stopps durch. |
-| [AgentAuthority](https://github.com/landjunge/agent-authority-lab/blob/master/README.md) | Zeigt Beobachtungen, Widersprüche und fehlende Belege; erteilt keine Freigaben. |
+| [TollGate](https://github.com/landjunge/TollGate/blob/main/README.de.md) | Prüft angeschlossene Aufrufe und setzt Verbrauchsgrenzen und Stopps durch. |
+| [AgentAuthority](https://github.com/landjunge/AgentAuthority/blob/master/README.md) | Zeigt Beobachtungen, Widersprüche und fehlende Belege; erteilt keine Freigaben. |
 
 Einzelne Schnittstellen sind vorhanden. Ein vollständig eingerichteter und geprüfter Ablauf aller fünf Produkte ist noch geplant. Freigaben bleiben beim zuständigen Werkzeug und beim Menschen. KiraBridge und AgentAuthority benötigen Zugriff auf ihre privaten Repositorys.
 

@@ -628,8 +628,8 @@ _TEMPLATE = r"""<!DOCTYPE html>
   <footer>
     {{ui.footer.lead}}
     <a href="/docs">{{ui.footer.api}}</a> ·
-    <a href="https://landjunge.github.io/tollgate/" target="_blank" rel="noopener">{{ui.footer.website}}</a> ·
-    <a href="https://github.com/landjunge/tollgate">{{ui.footer.github}}</a> ·
+    <a href="https://landjunge.github.io/TollGate/" target="_blank" rel="noopener">{{ui.footer.website}}</a> ·
+    <a href="https://github.com/landjunge/TollGate">{{ui.footer.github}}</a> ·
     <code>{{ui.footer.help}}</code>
   </footer>
 </main>

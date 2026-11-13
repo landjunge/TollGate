@@ -1,6 +1,6 @@
 # Tollgate — User Guide
 
-**Version:** 1.0.7 · **Repo:** https://github.com/landjunge/tollgate  
+**Version:** 1.0.7 · **Repo:** https://github.com/landjunge/TollGate  
 
 > **Tollgate is the safety layer between your AI agents and the internet.**  
 > Not an API gateway. Not a multi-LLM catalog.
@@ -78,7 +78,7 @@ Agent / n8n / MCP / OpenAI SDK
 **Requires Python ≥ 3.11.**
 
 ```bash
-git clone https://github.com/landjunge/tollgate.git
+git clone https://github.com/landjunge/TollGate.git tollgate
 cd tollgate
 python3 -m venv .venv && .venv/bin/pip install -e .
 
@@ -614,5 +614,5 @@ tollgate consumer-budget n8n --max-usd-day 0.5 --max-tool-calls 10
 
 ---
 
-**Pay the toll — or don't call.** · MIT · https://github.com/landjunge/tollgate  
+**Pay the toll — or don't call.** · MIT · https://github.com/landjunge/TollGate  
 CLI: `tollgate help` · FAQ: [FAQ.md](FAQ.md) · DE: [HILFE.md](HILFE.md)

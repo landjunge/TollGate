@@ -27,7 +27,7 @@ If any answer is **no**, the friction is a product bug — fix the path, don’t
 ## Path A — Local (recommended for the demo)
 
 ```bash
-git clone https://github.com/landjunge/tollgate.git
+git clone https://github.com/landjunge/TollGate.git tollgate
 cd tollgate
 python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
 
@@ -62,7 +62,7 @@ Optional free path later: `OPENCODE_API_KEY` in `$TOLLGATE_HOME/User/Key.txt`.
 ## Path B — Docker
 
 ```bash
-git clone https://github.com/landjunge/tollgate.git && cd tollgate
+git clone https://github.com/landjunge/TollGate.git tollgate && cd tollgate
 docker compose up -d --build
 
 # Wait until healthy, then:

@@ -483,7 +483,7 @@ Handbooks
   docs/TEN_MINUTE.md   10-minute stranger test
   docs/DEMO.md         killer demo script
   docs/PRODUCT.md      positioning
-  Website              https://landjunge.github.io/tollgate/
+  Website              https://landjunge.github.io/TollGate/
 
 Repo search
   tollgate search <query>
@@ -520,7 +520,7 @@ Handbücher
   docs/TEN_MINUTE.md   Zehn-Minuten-Test mit Fremden
   docs/DEMO.md         Ablauf der Vorführung
   docs/PRODUCT.md      Einordnung
-  Webseite             https://landjunge.github.io/tollgate/
+  Webseite             https://landjunge.github.io/TollGate/
 
 Im Repo suchen
   tollgate search <suche>

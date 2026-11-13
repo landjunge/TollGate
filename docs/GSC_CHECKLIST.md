@@ -10,9 +10,9 @@ Do this once per property. Goal: get **GitHub Pages** into Google’s index (rep
 
 | Property type | Value |
 |---------------|--------|
-| URL-prefix | `https://landjunge.github.io/tollgate/` |
+| URL-prefix | `https://landjunge.github.io/TollGate/` |
 | URL-prefix | `https://landjunge.github.io/gnom-hub-v1/` |
-| Optional | `https://github.com/landjunge/tollgate` (GitHub often already indexed) |
+| Optional | `https://github.com/landjunge/TollGate` (GitHub often already indexed) |
 
 **Verify:** preferred = HTML file upload **or** DNS (if you later add a custom domain).  
 For `github.io` prefix properties, use the **HTML meta tag** or **Google Analytics** method if available; easiest is often:
@@ -33,7 +33,7 @@ Meta tag example (replace with the token GSC gives you):
 | Action | Status |
 |--------|--------|
 | **IndexNow** keys on both Pages sites | deployed — `scripts/indexnow-ping.sh` |
-| Disambiguation page | https://landjunge.github.io/tollgate/what-is-tollgate.html |
+| Disambiguation page | https://landjunge.github.io/TollGate/what-is-tollgate.html |
 | Sitemap `lastmod` refresh | yes |
 
 IndexNow notifies Bing/Yandex/etc. immediately after deploy. **Google still needs GSC** (no public bulk API without OAuth).
@@ -44,14 +44,14 @@ IndexNow notifies Bing/Yandex/etc. immediately after deploy. **Google still need
 
 | Property | Sitemap URL |
 |----------|-------------|
-| Tollgate Pages | `https://landjunge.github.io/tollgate/sitemap.xml` |
+| Tollgate Pages | `https://landjunge.github.io/TollGate/sitemap.xml` |
 | Gnom-Hub Pages | `https://landjunge.github.io/gnom-hub-v1/sitemap.xml` |
 
 Sitemaps → Add new sitemap → paste path relative to property root (`sitemap.xml`).
 
 Also public:
 
-- robots: `https://landjunge.github.io/tollgate/robots.txt`
+- robots: `https://landjunge.github.io/TollGate/robots.txt`
 - robots: `https://landjunge.github.io/gnom-hub-v1/robots.txt`
 
 ---
@@ -61,16 +61,16 @@ Also public:
 Inspect + **Request indexing** for each (priority order):
 
 ### Tollgate
-1. `https://landjunge.github.io/tollgate/`
-2. `https://landjunge.github.io/tollgate/what-is-tollgate.html`
-3. `https://landjunge.github.io/tollgate/de.html`
-4. `https://landjunge.github.io/tollgate/blog/checklist.html`
-4. `https://landjunge.github.io/tollgate/blog/launch.html`
-5. `https://landjunge.github.io/tollgate/blog/launch-de.html`
-6. `https://landjunge.github.io/tollgate/docs.html`
-7. `https://landjunge.github.io/tollgate/ecosystem.html`
-8. `https://landjunge.github.io/tollgate/press/`
-9. `https://landjunge.github.io/tollgate/llms.txt`
+1. `https://landjunge.github.io/TollGate/`
+2. `https://landjunge.github.io/TollGate/what-is-tollgate.html`
+3. `https://landjunge.github.io/TollGate/de.html`
+4. `https://landjunge.github.io/TollGate/blog/checklist.html`
+4. `https://landjunge.github.io/TollGate/blog/launch.html`
+5. `https://landjunge.github.io/TollGate/blog/launch-de.html`
+6. `https://landjunge.github.io/TollGate/docs.html`
+7. `https://landjunge.github.io/TollGate/ecosystem.html`
+8. `https://landjunge.github.io/TollGate/press/`
+9. `https://landjunge.github.io/TollGate/llms.txt`
 
 ### Gnom-Hub
 1. `https://landjunge.github.io/gnom-hub-v1/`
@@ -91,8 +91,8 @@ Brand (should start working first):
 
 ```text
 Tollgate landjunge
-"landjunge/tollgate"
-site:landjunge.github.io/tollgate
+"landjunge/TollGate"
+site:landjunge.github.io/TollGate
 Gnom-Hub landjunge
 site:landjunge.github.io/gnom-hub-v1
 ```
@@ -132,7 +132,7 @@ GSC alone is slow without mentions:
 
 Titles/descriptions now stress:
 
-- **landjunge/tollgate**
+- **landjunge/TollGate**
 - **AI agent safety**
 - **Not OpenTollGate / road tolls**
 
@@ -151,5 +151,5 @@ Often indexes GitHub Pages faster than Google.
 
 - [ ] GSC property verified for both Pages roots  
 - [ ] Both sitemaps show “Success” / URLs discovered  
-- [ ] `site:landjunge.github.io/tollgate` returns the homepage  
+- [ ] `site:landjunge.github.io/TollGate` returns the homepage  
 - [ ] Brand query `Tollgate landjunge` shows **Pages** (not only random GitHub trees)
