@@ -1,6 +1,6 @@
 <!-- readme-header-v1: Kopf nach ThreadDesk docs/contracts/readme-header-v1.md. Nicht von Hand umgestalten; scripts/readme_header.py apply/check verwenden. -->
 
-[English](README.md) · **Deutsch**
+<p align="center"><a href="README.md">English</a> &nbsp;|&nbsp; <strong>Deutsch</strong></p>
 
 <p align="center">
   <img src="assets/readme/normalized/TollGate-large.svg" alt="TollGate" width="256" height="256">
