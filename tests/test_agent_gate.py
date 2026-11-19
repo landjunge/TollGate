@@ -162,3 +162,41 @@ def test_default_now_and_epoch_now(tmp_path):
     _cfg(tmp_path, {"claude": {"max_usd_day": 10}})
     assert agent_gate("claude", user_dir=tmp_path)["decision"] == "allow"
     assert agent_gate("claude", user_dir=tmp_path, now=NOW.timestamp())["decision"] == "allow"
+
+
+def test_two_exhausted_windows_stay_exhausted_until_the_last_resets(tmp_path):
+    iso = lambda t: t.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")  # noqa: E731
+    evidence = NOW - timedelta(hours=8)  # older than the 6h evidence age
+    row = {
+        "schema": "tollgate-plan-snapshot-v1", "provider": "claude", "limit_status": "exhausted",
+        "evidence_at": iso(evidence), "observed_at": iso(evidence),
+        "windows": [
+            {"window": "5h", "minutes": 300, "used_percent": 100.0,
+             "resets_at": iso(NOW - timedelta(hours=1))},  # the short window already reset
+            {"window": "7d", "minutes": 10080, "used_percent": 100.0,
+             "resets_at": iso(NOW + timedelta(days=3))},
+        ],
+    }
+    (tmp_path / "plan_status.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    result = g(tmp_path)
+    assert result["plan"]["fresh"] is True
+    assert result["reason"] == "plan_exhausted_observed"
+    assert result["decision"] == "allow"
+    assert result["valid_until"] == (NOW + timedelta(days=3)).timestamp()
+
+
+def test_default_dir_is_resolved_without_creating_a_portable_directory(tmp_path, monkeypatch):
+    from tollgate import paths
+
+    hub = tmp_path / "stick" / "tollgate"
+    hub.mkdir(parents=True)
+    monkeypatch.delenv("TOLLGATE_HOME", raising=False)
+    monkeypatch.delenv("GNOM_WS", raising=False)
+    monkeypatch.delenv("TOLLGATE_CONFIG", raising=False)
+    monkeypatch.delenv("GNOM_KEYS_CONFIG", raising=False)
+    monkeypatch.setattr(paths, "is_portable_mode", lambda root=None: True)
+    monkeypatch.setattr(paths, "project_root", lambda: hub)
+    before = sorted(p.name for p in hub.parent.iterdir())
+    result = agent_gate("claude")
+    assert result["decision"] == "unknown" and result["reason"] == "tollgate_unavailable"
+    assert sorted(p.name for p in hub.parent.iterdir()) == before

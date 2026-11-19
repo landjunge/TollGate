@@ -9,6 +9,7 @@ holds no locks, never raises.
 from __future__ import annotations
 
 import json
+import os
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -35,13 +36,40 @@ def _read_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _default_user_dir() -> Path:
+    """The User dir TollGate would use, resolved without creating anything.
+
+    ``paths.data_home()`` may create a portable sibling directory; a read-only gate must not.
+    A portable layout that does not exist yet counts as unavailable.
+    """
+    from tollgate import paths
+
+    for env in ("TOLLGATE_HOME", "GNOM_WS"):
+        value = (os.environ.get(env) or "").strip()
+        if value:
+            return Path(value).expanduser().resolve() / "User"
+    if paths.is_portable_mode():
+        hub = paths.project_root()
+        for cand in paths.portable_data_candidates(hub):
+            if (cand / "User").is_dir() or (cand / "User" / "Key.txt").is_file():
+                return cand.resolve() / "User"
+        for cand in paths.portable_data_candidates(hub):
+            if cand.is_dir() and cand != hub:
+                return cand.resolve() / "User"
+        raise FileNotFoundError("portable data directory does not exist")
+    return (Path.home() / ".tollgate").resolve() / "User"
+
+
 def _paths(user_dir: Any) -> tuple[Path, Path, Path]:
     if user_dir is None:
-        from tollgate.app_config import config_path
-        from tollgate.paths import user_dir as default_dir
-
-        base = default_dir()
-        return config_path(), base / USAGE_NAME, base / LOG_NAME
+        base = _default_user_dir()
+        cfg = None
+        for key in ("TOLLGATE_CONFIG", "GNOM_KEYS_CONFIG"):
+            env = (os.environ.get(key) or "").strip()
+            if env:
+                cfg = Path(env).expanduser().resolve()
+                break
+        return cfg or base / CONFIG_NAME, base / USAGE_NAME, base / LOG_NAME
     base = Path(user_dir)
     return base / CONFIG_NAME, base / USAGE_NAME, base / LOG_NAME
 
@@ -117,15 +145,26 @@ def _plan(path: Path, consumer: str, now: datetime) -> dict[str, Any] | None:
     if status == "exhausted":
         windows = [w for w in (latest.get("windows") or []) if isinstance(w, dict)]
         hit = [w for w in windows if (w.get("used_percent") or 0) >= 100] or windows
+        # Each exhausted window counts while it has not reset. A reset of the shorter
+        # window must not hide a longer one that is still exhausted; the plan stays
+        # exhausted until the last of them resets.
+        active = []
         for w in hit:
             span = w.get("minutes")
             if isinstance(span, (int, float)) and span > 0 and (now - latest_at) > timedelta(minutes=span):
+                continue
+            reset = _parse_time(w.get("resets_at"))
+            if reset is not None and reset <= now:
+                continue
+            active.append(reset)
+        if hit:
+            if not active:
                 fresh = False
-            r = _parse_time(w.get("resets_at"))
-            if r is not None:
-                if r <= now:
-                    fresh = False
-                resets = r if resets is None else min(resets, r)
+            else:
+                known = [r for r in active if r is not None]
+                resets = max(known) if known else None
+                if resets is not None:
+                    fresh = True  # an explicit future reset date is the evidence's validity
     return {
         "limit_status": status,
         "evidence_at": latest.get("evidence_at"),
