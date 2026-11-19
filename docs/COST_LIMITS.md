@@ -211,3 +211,5 @@ Works in **open mode** (label only) and **auth mode** (id:secret). Admission den
 ## Distill
 
 Full warnings: [`src/tollgate/distill/google.json`](../src/tollgate/distill/google.json)
+
+**Agent-Gate (nur lesend):** `tollgate.agent_gate.agent_gate(consumer)` liefert allow/deny/unknown; nur ein vom Nutzer gesetztes `consumer_envelopes.<agent>.max_usd_day` kann ablehnen, Plan-Erschöpfung wird nur gemeldet.
