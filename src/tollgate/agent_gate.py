@@ -193,7 +193,10 @@ def agent_gate(consumer: str, *, user_dir: Any = None, now: Any = None) -> dict[
     datetime (default: current time).
     """
     try:
-        cid = (consumer or "").strip()
+        from tollgate.consumers import normalize_consumer_id
+
+        # Same lane id as the ledger and the envelope lookup use (empty/invalid -> anonymous).
+        cid = normalize_consumer_id(consumer)
         when = _now_dt(now)
         cfg_p, usage_p, plan_p = _paths(user_dir)
         limit = _user_limit(_read_json(cfg_p), cid)

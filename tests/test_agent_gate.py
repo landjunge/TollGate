@@ -200,3 +200,10 @@ def test_default_dir_is_resolved_without_creating_a_portable_directory(tmp_path,
     result = agent_gate("claude")
     assert result["decision"] == "unknown" and result["reason"] == "tollgate_unavailable"
     assert sorted(p.name for p in hub.parent.iterdir()) == before
+
+
+def test_consumer_ids_are_normalized_like_the_ledger(tmp_path):
+    _cfg(tmp_path, {"anonymous": {"max_usd_day": 1.0}})
+    _usage(tmp_path, {"anonymous": {"requests": 3, "usd": 2.0, "tokens": 0}})
+    for label in ("", "   ", "not a valid id!!", "anonymous"):
+        assert g(tmp_path, label)["decision"] == "deny", label
