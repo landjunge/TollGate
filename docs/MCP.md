@@ -1,6 +1,6 @@
 # Tollgate — MCP
 
-**Product:** [landjunge/tollgate](https://github.com/landjunge/tollgate)  
+**Product:** [landjunge/TollGate](https://github.com/landjunge/TollGate)  
 **Package entry:** `python -m tollgate` (or `tollgate mcp`)
 
 No `gnom_hub.keys` module. Gnom is only a **client**.
@@ -10,7 +10,7 @@ No `gnom_hub.keys` module. Gnom is only a **client**.
 ## 1) Stdio MCP (Cursor / Claude Desktop / agents)
 
 ```bash
-# After: pip install -e .  (or git+https://github.com/landjunge/tollgate.git)
+# After: pip install -e .  (or git+https://github.com/landjunge/TollGate.git)
 # Desk:   unset → ~/.tollgate
 # USB:    auto if repo under /Volumes|/media|/mnt, or:
 export TOLLGATE_PORTABLE=1

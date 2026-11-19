@@ -1,6 +1,6 @@
 # Tollgate — Hilfe & Handbuch
 
-**Version:** 1.0.7 · **Repo:** https://github.com/landjunge/tollgate  
+**Version:** 1.0.7 · **Repo:** https://github.com/landjunge/TollGate  
 
 > **Tollgate ist die Sicherheits-Schicht zwischen deinen AI-Agents und dem Internet.**  
 > Nicht „API-Gateway“, nicht „Multi-LLM-Katalog“.
@@ -97,7 +97,7 @@ Agent / n8n / MCP-Client / OpenAI-SDK
 ### Lokal
 
 ```bash
-git clone https://github.com/landjunge/tollgate.git
+git clone https://github.com/landjunge/TollGate.git tollgate
 cd tollgate
 python3 -m venv .venv
 .venv/bin/pip install -e .
@@ -678,7 +678,7 @@ CLI: `tollgate search <begriff>` · `tollgate search --map`
 
 ## 17. Support / Mitmachen
 
-- Issues & Code: https://github.com/landjunge/tollgate  
+- Issues & Code: https://github.com/landjunge/TollGate  
 - Feedback zur **10-Minuten-Reibung** ist wertvoller als Feature-Wünsche.  
 - Lizenz: MIT  
 

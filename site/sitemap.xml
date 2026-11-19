@@ -3,12 +3,12 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://landjunge.github.io/tollgate/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://landjunge.github.io/tollgate/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://landjunge.github.io/tollgate/de.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://landjunge.github.io/tollgate/"/>
+    <loc>https://landjunge.github.io/TollGate/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://landjunge.github.io/TollGate/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://landjunge.github.io/TollGate/de.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://landjunge.github.io/TollGate/"/>
     <image:image>
-      <image:loc>https://landjunge.github.io/tollgate/assets/og.png</image:loc>
+      <image:loc>https://landjunge.github.io/TollGate/assets/og.png</image:loc>
       <image:title>Tollgate AI Agent Safety by landjunge — Protect · Route · Prove</image:title>
     </image:image>
     <lastmod>2026-08-12</lastmod>
@@ -16,87 +16,87 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/de.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://landjunge.github.io/tollgate/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://landjunge.github.io/tollgate/de.html"/>
+    <loc>https://landjunge.github.io/TollGate/de.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://landjunge.github.io/TollGate/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://landjunge.github.io/TollGate/de.html"/>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/what-is-tollgate.html</loc>
+    <loc>https://landjunge.github.io/TollGate/what-is-tollgate.html</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.98</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/docs.html</loc>
+    <loc>https://landjunge.github.io/TollGate/docs.html</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/ecosystem.html</loc>
+    <loc>https://landjunge.github.io/TollGate/ecosystem.html</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/blog/launch.html</loc>
+    <loc>https://landjunge.github.io/TollGate/blog/launch.html</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/blog/launch-de.html</loc>
+    <loc>https://landjunge.github.io/TollGate/blog/launch-de.html</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/blog/checklist.html</loc>
+    <loc>https://landjunge.github.io/TollGate/blog/checklist.html</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/press/</loc>
+    <loc>https://landjunge.github.io/TollGate/press/</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/llms.txt</loc>
+    <loc>https://landjunge.github.io/TollGate/llms.txt</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/assets/og.png</loc>
+    <loc>https://landjunge.github.io/TollGate/assets/og.png</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/assets/stack-share.png</loc>
+    <loc>https://landjunge.github.io/TollGate/assets/stack-share.png</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/assets/promo-square.png</loc>
+    <loc>https://landjunge.github.io/TollGate/assets/promo-square.png</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/impressum.html</loc>
+    <loc>https://landjunge.github.io/TollGate/impressum.html</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://landjunge.github.io/tollgate/datenschutz.html</loc>
+    <loc>https://landjunge.github.io/TollGate/datenschutz.html</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>

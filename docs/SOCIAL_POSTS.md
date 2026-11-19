@@ -4,7 +4,7 @@ Copy/paste. Links are live.
 
 | Project | Site | Repo |
 |---------|------|------|
-| **Tollgate** | https://landjunge.github.io/tollgate/ | https://github.com/landjunge/tollgate |
+| **Tollgate** | https://landjunge.github.io/TollGate/ | https://github.com/landjunge/TollGate |
 | **Gnom-Hub** | https://landjunge.github.io/gnom-hub-v1/ | https://github.com/landjunge/gnom-hub-v1 |
 
 ---
@@ -22,8 +22,8 @@ Prove: chaos test + reliability certificate
 
 Not another LLM catalog.
 
-https://landjunge.github.io/tollgate/
-https://github.com/landjunge/tollgate
+https://landjunge.github.io/TollGate/
+https://github.com/landjunge/TollGate
 ```
 
 ### Gnom-Hub only
@@ -51,7 +51,7 @@ Two tools I built for production AI agents:
 
 2) Tollgate — safety layer in front of LLMs/tools
    Protect · Route · Prove (budgets, loops, chaos DR)
-   https://landjunge.github.io/tollgate/
+   https://landjunge.github.io/TollGate/
 
 Open source · local-first
 ```
@@ -82,12 +82,12 @@ I built two pieces that fit together for desktop / agent work:
 - Route: health-aware failover + circuits
 - Prove: chaos test + reliability certificate
 - OpenAI drop-in base_url, MCP, n8n
-- Site: https://landjunge.github.io/tollgate/
-- Repo: https://github.com/landjunge/tollgate
+- Site: https://landjunge.github.io/TollGate/
+- Repo: https://github.com/landjunge/TollGate
 
 Cold path for Tollgate (no keys needed for the Protect demo):
 
-    git clone https://github.com/landjunge/tollgate.git && cd tollgate
+    git clone https://github.com/landjunge/TollGate.git tollgate && cd tollgate
     python3 -m venv .venv && .venv/bin/pip install -e .
     ./scripts/ten-minute.sh
 
@@ -112,7 +112,7 @@ You brainstorm freely. Workers that spend money or touch the filesystem only sta
 2) Tollgate — a safety layer in front of models and tools
 Protect (budgets, tool-loop stops, freeze), Route (failover), Prove (chaos + certificate). Point your OpenAI SDK / n8n / MCP at it.
 
-→ https://landjunge.github.io/tollgate/
+→ https://landjunge.github.io/TollGate/
 
 If you ship agents in production, the hard part is not “call another model” — it is keeping them in line and knowing failover works.
 
@@ -132,7 +132,7 @@ Zwei Tools für AI-Agents:
 
 2) Tollgate — Sicherheits-Schicht vor LLMs/Tools
    Protect · Route · Prove
-   https://landjunge.github.io/tollgate/
+   https://landjunge.github.io/TollGate/
 
 Open Source · local-first
 ```
@@ -148,8 +148,8 @@ xurl auth   # complete OAuth
 xurl post "Tollgate — safety layer for AI agents…
 
 Protect · Route · Prove
-https://landjunge.github.io/tollgate/
-https://github.com/landjunge/tollgate"
+https://landjunge.github.io/TollGate/
+https://github.com/landjunge/TollGate"
 
 xurl post "Gnom-Hub — local multi-agent desk…
 
@@ -165,7 +165,7 @@ https://github.com/landjunge/gnom-hub-v1"
 
 Full article ready to paste: [`docs/DEVTO_ARTICLE.md`](./DEVTO_ARTICLE.md)
 
-Canonical: https://landjunge.github.io/tollgate/blog/launch.html  
+Canonical: https://landjunge.github.io/TollGate/blog/launch.html  
 Tags: `ai` `agents` `python` `opensource` `devops`
 
 ---
@@ -175,7 +175,7 @@ Tags: `ai` `agents` `python` `opensource` `devops`
 **Name:** Tollgate  
 **Tagline:** Safety layer for AI agents — Protect · Route · Prove  
 **Topics:** Artificial Intelligence, Developer Tools, Open Source  
-**Links:** https://landjunge.github.io/tollgate/ · https://github.com/landjunge/tollgate  
+**Links:** https://landjunge.github.io/TollGate/ · https://github.com/landjunge/TollGate  
 **First comment:** mention Gnom-Hub + cold path commands + checklist URL.
 
 **Gallery:** `site/assets/stack-share.png`, `promo-square.png`, `og.png`
@@ -195,7 +195,7 @@ Post in Discussions after a cold path run:
 - Confusing step (if any):
 ```
 
-Permalink target: https://github.com/landjunge/tollgate/discussions
+Permalink target: https://github.com/landjunge/TollGate/discussions
 
 ---
 
@@ -224,15 +224,15 @@ Use combo post from top; attach `stack-share.png`.
 |---------|-----|
 | GitHub Gist (stack) | https://gist.github.com/landjunge/ce4190deb6536cc6134c767f500c4dc9 |
 | GitHub Gist (10-min) | https://gist.github.com/landjunge/5b36c2afc4e5242e55700aee28407f03 |
-| Tollgate Discussions | https://github.com/landjunge/tollgate/discussions/10 |
-| Resilience challenge | https://github.com/landjunge/tollgate/discussions/12 |
+| Tollgate Discussions | https://github.com/landjunge/TollGate/discussions/10 |
+| Resilience challenge | https://github.com/landjunge/TollGate/discussions/12 |
 | Gnom-Hub Discussions | https://github.com/landjunge/gnom-hub-v1/discussions/46 |
-| Tollgate release | https://github.com/landjunge/tollgate/releases/tag/announce-public |
+| Tollgate release | https://github.com/landjunge/TollGate/releases/tag/announce-public |
 | Gnom-Hub release | https://github.com/landjunge/gnom-hub-v1/releases/tag/announce-public |
-| Launch blog EN | https://landjunge.github.io/tollgate/blog/launch.html |
-| Launch blog DE | https://landjunge.github.io/tollgate/blog/launch-de.html |
-| Safety checklist | https://landjunge.github.io/tollgate/blog/checklist.html |
-| Press kit | https://landjunge.github.io/tollgate/press/ |
+| Launch blog EN | https://landjunge.github.io/TollGate/blog/launch.html |
+| Launch blog DE | https://landjunge.github.io/TollGate/blog/launch-de.html |
+| Safety checklist | https://landjunge.github.io/TollGate/blog/checklist.html |
+| Press kit | https://landjunge.github.io/TollGate/press/ |
 | Awesome AI Agents PR | https://github.com/aloth/awesome-ai-agents/pull/38 |
 | Awesome LLMOps PR | https://github.com/tensorchord/Awesome-LLMOps/pull/735 |
 | Awesome AI Tools PR | https://github.com/mahseema/awesome-ai-tools/pull/1955 |

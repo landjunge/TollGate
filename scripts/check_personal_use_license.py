@@ -72,8 +72,11 @@ def detect_product(explicit: str | None) -> str:
             raise SystemExit(f"Unknown product {explicit!r}; expected {sorted(PRODUCTS)}")
         return key
     repo = os.environ.get("GITHUB_REPOSITORY", "").split("/")[-1]
-    if repo in REPO_TO_PRODUCT:
-        return REPO_TO_PRODUCT[repo]
+    # GitHub repository names are matched case-insensitively and by their short names.
+    known = {name.lower(): key for name, key in REPO_TO_PRODUCT.items()}
+    known.update({"agentauthority": "agent-authority", "agent-authority": "agent-authority"})
+    if repo.lower() in known:
+        return known[repo.lower()]
     raise SystemExit("Pass --product KEY or set GITHUB_REPOSITORY")
 
 
@@ -161,8 +164,8 @@ def check_package_json(repo: Path) -> list[str]:
         rel = path.relative_to(repo).as_posix()
         data = json.loads(path.read_text(encoding="utf-8"))
         license_field = data.get("license")
-        if not isinstance(license_field, str) or not license_field.startswith(
-            ("SEE LICENSE IN ", "LicenseRef-Netzwerkpunkt")
+        if not isinstance(license_field, str) or not (
+            license_field == ALLOWED_LICENSE_REF or license_field.startswith("SEE LICENSE IN ")
         ):
             problems.append(f"{rel}: license muss SEE LICENSE IN LICENSE sein")
             continue
@@ -171,6 +174,15 @@ def check_package_json(repo: Path) -> list[str]:
             if expected is not None and (not target.is_file() or target.read_bytes() != expected):
                 problems.append(f"{rel}: {target.name} stimmt nicht mit der Stamm-LICENSE überein")
     return problems
+
+
+def license_reference_matches_root(repo: Path, base: Path, reference: str) -> bool:
+    """A referenced license file must be the root LICENSE byte for byte (when one exists)."""
+    root = repo / "LICENSE"
+    if not root.is_file():
+        return True
+    target = (base / reference).resolve()
+    return target.is_file() and target.read_bytes() == root.read_bytes()
 
 
 def check_tauri(repo: Path) -> list[str]:
@@ -188,22 +200,50 @@ def check_tauri(repo: Path) -> list[str]:
             problems.append(
                 f"{rel}: bundle.licenseFile oder bundle.license muss Personal Use 1.0 sein"
             )
+        if license_id and not ok_id:
+            # A valid license file must not mask a conflicting explicit identifier.
+            problems.append(f"{rel}: bundle.license {license_id!r} ist nicht Personal Use 1.0")
+        if license_file and not ok_file:
+            problems.append(f"{rel}: bundle.licenseFile muss LICENSE nennen")
+        elif license_file and not license_reference_matches_root(repo, conf.parent, license_file):
+            problems.append(f"{rel}: bundle.licenseFile stimmt nicht mit der Stamm-LICENSE überein")
         cargo = conf.parent / "Cargo.toml"
-        if cargo.is_file() and not re.search(
-            r'(?m)^license-file\s*=\s*".*LICENSE"', cargo.read_text(encoding="utf-8")
-        ):
-            problems.append(
-                f"{cargo.relative_to(repo).as_posix()}: license-file muss LICENSE nennen"
+        if cargo.is_file():
+            found = re.search(
+                r'(?m)^license-file\s*=\s*"([^"]*LICENSE)"', cargo.read_text(encoding="utf-8")
             )
+            cargo_rel = cargo.relative_to(repo).as_posix()
+            if not found:
+                problems.append(f"{cargo_rel}: license-file muss LICENSE nennen")
+            elif not license_reference_matches_root(repo, cargo.parent, found.group(1)):
+                problems.append(f"{cargo_rel}: license-file stimmt nicht mit der Stamm-LICENSE überein")
     return problems
+
+
+# Concrete source-recipe guards, not proof of a built artifact. Unknown recipes fail closed.
+PACKAGER_PROOFS = {
+    "native/macos/build_candidate.py": (
+        'shutil.copy2(ROOT / "LICENSE", resources / "LICENSE-TollGate.txt")',
+    ),
+    "Dockerfile": ("COPY pyproject.toml README.md LICENSE ./",),
+}
+
+
+def executable_lines(text: str) -> str:
+    """Drop full-line comments so a commented-out command is not accepted as proof."""
+    return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
 
 
 def check_packagers(repo: Path) -> list[str]:
     problems = []
     for rel in PACKAGERS:
         path = repo / rel
-        if path.is_file() and "LICENSE" not in path.read_text(encoding="utf-8"):
-            problems.append(f"{rel}: Installationsrezept muss LICENSE mit ausliefern")
+        if not path.is_file():
+            continue
+        code = executable_lines(path.read_text(encoding="utf-8"))
+        proofs = PACKAGER_PROOFS.get(rel, ())
+        if not proofs or not all(proof in code for proof in proofs):
+            problems.append(f"{rel}: konkreter Produkt-LICENSE-Paketnachweis fehlt")
     return problems
 
 

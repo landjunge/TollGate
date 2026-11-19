@@ -1,6 +1,6 @@
 # Tollgate — Vision (locked)
 
-**Product / repo:** **[landjunge/tollgate](https://github.com/landjunge/tollgate)**  
+**Product / repo:** **[landjunge/TollGate](https://github.com/landjunge/TollGate)**  
 **Status:** agreed 2026-08-11 · **name locked** · control-plane direction locked  
 **Killer use case:** *“My AI agent must never go out of control.”*  
 **One-liner:** **Tollgate is the safety layer between your AI agents and the internet.**  

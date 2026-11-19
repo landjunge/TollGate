@@ -1,6 +1,6 @@
 <!-- readme-header-v1: Kopf nach ThreadDesk docs/contracts/readme-header-v1.md. Nicht von Hand umgestalten; scripts/readme_header.py apply/check verwenden. -->
 
-**English** · [Deutsch](README.de.md)
+<p align="center"><strong>English</strong> &nbsp;|&nbsp; <a href="README.de.md">Deutsch</a></p>
 
 <p align="center">
   <img src="assets/readme/normalized/TollGate-large.svg" alt="TollGate" width="256" height="256">
@@ -9,21 +9,30 @@
 <p align="center">
   <a href="https://github.com/landjunge/KiraBridge#readme" title="KiraBridge"><img src="assets/readme/normalized/KiraBridge-small.svg" alt="KiraBridge" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/threaddesk#readme" title="ThreadDesk"><img src="assets/readme/normalized/ThreadDesk-small.svg" alt="ThreadDesk" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/ThreadDesk#readme" title="ThreadDesk"><img src="assets/readme/normalized/ThreadDesk-small.svg" alt="ThreadDesk" width="48" height="48"></a>
   &nbsp;
   <a href="https://github.com/landjunge/4AllPass#readme" title="4AllPass"><img src="assets/readme/normalized/4AllPass-small.svg" alt="4AllPass" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/agent-authority-lab#readme" title="Agent Authority"><img src="assets/readme/normalized/Agent-Authority-small.svg" alt="Agent Authority" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/AgentAuthority#readme" title="Agent Authority"><img src="assets/readme/normalized/Agent-Authority-small.svg" alt="Agent Authority" width="48" height="48"></a>
   &nbsp;
-  <a href="https://github.com/landjunge/blockdesign#readme" title="BlockDesign"><img src="assets/readme/normalized/BlockDesign-small.svg" alt="BlockDesign" width="48" height="48"></a>
+  <a href="https://github.com/landjunge/BlockDesign#readme" title="BlockDesign"><img src="assets/readme/normalized/BlockDesign-small.svg" alt="BlockDesign" width="48" height="48"></a>
 </p>
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/design/wordmarks/TollGate-dark.svg"><img src="assets/design/wordmarks/TollGate-light.svg" alt="TollGate" width="280"></picture></p>
 
 <!-- AUTO-DOWNLOADS:START -->
 <p align="center">
-  <a href="https://github.com/landjunge/tollgate/archive/refs/heads/main.zip" title="tollgate-main.zip herunterladen / download"><img src="assets/readme/download-source.svg" alt="Download Quellcode / Source ZIP · 1.0.12" width="190" height="52"></a>
+  <img src="assets/readme/download-macos-apple-silicon.svg" alt="macOS Apple Silicon: In Vorbereitung / Coming soon" width="190" height="52">
+  &nbsp;
+  <img src="assets/readme/download-macos-intel.svg" alt="macOS Intel: In Vorbereitung / Coming soon" width="190" height="52">
+  &nbsp;
+  <img src="assets/readme/download-windows.svg" alt="Windows: In Vorbereitung / Coming soon" width="190" height="52">
+  &nbsp;
+  <img src="assets/readme/download-linux-desktop.svg" alt="Linux Desktop: In Vorbereitung / Coming soon" width="190" height="52">
+  &nbsp;
+  <img src="assets/readme/download-debian-server.svg" alt="Debian Server: In Vorbereitung / Coming soon" width="190" height="52">
 </p>
+<p align="center"><a href="https://github.com/landjunge/TollGate/archive/refs/heads/main.zip">Quellcode herunterladen / Download source ZIP</a></p>
 <!-- AUTO-DOWNLOADS:END -->
 
 <p align="center"><strong>A safety gate for AI agents.</strong></p>
@@ -35,7 +44,7 @@
 **Source-only Protect demo (Python 3.11+, use permitted under [LICENSE](LICENSE)):**
 
 ```sh
-git clone https://github.com/landjunge/tollgate.git && cd tollgate
+git clone https://github.com/landjunge/TollGate.git tollgate && cd tollgate
 python3 -m venv .venv && .venv/bin/pip install -e .
 ./scripts/ten-minute.sh
 ```
@@ -60,9 +69,9 @@ TollGate checks connected model and tool calls before they execute. It helps sto
 
 **Source version: 1.0.12 · In development · Python 3.11 or newer**
 
-[Quick start from source](docs/QUICKSTART.md) · [View source](https://github.com/landjunge/tollgate/tree/main)
+[Quick start from source](docs/QUICKSTART.md) · [View source](https://github.com/landjunge/TollGate/tree/main)
 
-There is no published desktop installer. The [announcement release](https://github.com/landjunge/tollgate/releases/tag/announce-public) has no packaged downloads. Private use is free under the [license](LICENSE); business use needs written permission.
+There is no published desktop installer. The [announcement release](https://github.com/landjunge/TollGate/releases/tag/announce-public) has no packaged downloads. Private use is free under the [license](LICENSE); business use needs written permission.
 
 ## What TollGate helps you do
 
@@ -95,11 +104,11 @@ The five products remain independent. The goal is a shared workflow with **KiraB
 
 | Product | Role in the shared workflow |
 | --- | --- |
-| [ThreadDesk](https://github.com/landjunge/threaddesk/blob/main/README.md) | Keeps project context, knowledge and results. |
+| [ThreadDesk](https://github.com/landjunge/ThreadDesk/blob/main/README.md) | Keeps project context, knowledge and results. |
 | [KiraBridge](https://github.com/landjunge/KiraBridge/blob/main/README.md) | Relays tasks, questions and replies between chat, local agents and tools. |
 | [4AllPass](https://github.com/landjunge/4AllPass/blob/main/README.md) | Manages credentials; is intended to enable specifically approved access. |
-| [TollGate](https://github.com/landjunge/tollgate/blob/main/README.md) | Checks connected calls and enforces usage limits and stops. |
-| [AgentAuthority](https://github.com/landjunge/agent-authority-lab/blob/master/README.md) | Shows observations, contradictions and missing evidence; does not approve actions. |
+| [TollGate](https://github.com/landjunge/TollGate/blob/main/README.md) | Checks connected calls and enforces usage limits and stops. |
+| [AgentAuthority](https://github.com/landjunge/AgentAuthority/blob/master/README.md) | Shows observations, contradictions and missing evidence; does not approve actions. |
 
 Some interfaces already exist. A fully configured and verified workflow across all five products is still planned. Approvals stay with the responsible tool and the human. KiraBridge and AgentAuthority require access to their private repositories.
 

@@ -27,7 +27,7 @@ meta = json.load(open(sys.argv[1]))
 key = meta["key"]
 key_loc = meta["keyLocation"]
 host = "landjunge.github.io"
-base = "https://landjunge.github.io/tollgate"
+base = "https://landjunge.github.io/TollGate"
 urls = [
     f"{base}/",
     f"{base}/de.html",

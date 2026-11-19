@@ -9,7 +9,7 @@ class TollgateApi {
 		this.name = 'tollgateApi';
 		this.displayName = 'Tollgate API';
 		this.documentationUrl =
-			'https://github.com/landjunge/tollgate/blob/main/docs/N8N.md';
+			'https://github.com/landjunge/TollGate/blob/main/docs/N8N.md';
 		this.properties = [
 			{
 				displayName: 'Base URL',

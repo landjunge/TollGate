@@ -51,7 +51,7 @@
 
 ## Reporting
 
-No public bounty program. Prefer private disclosure via GitHub security advisory on `landjunge/tollgate` when available.
+No public bounty program. Prefer private disclosure via GitHub security advisory on `landjunge/TollGate` when available.
 
 ---
 

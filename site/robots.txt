@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Primary sitemap (Google Search Console)
-Sitemap: https://landjunge.github.io/tollgate/sitemap.xml
+Sitemap: https://landjunge.github.io/TollGate/sitemap.xml
 
 # Host hint (GitHub Pages)
 Host: https://landjunge.github.io

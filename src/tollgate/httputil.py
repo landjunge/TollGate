@@ -88,7 +88,7 @@ def http_json(
     # Default UA — Cloudflare 1010 blocks empty/python-urllib signatures on some hosts
     hdrs.setdefault(
         "User-Agent",
-        "Mozilla/5.0 (compatible; Tollgate/0.1; +https://github.com/landjunge/tollgate)",
+        "Mozilla/5.0 (compatible; Tollgate/0.1; +https://github.com/landjunge/TollGate)",
     )
     req = urllib.request.Request(url, data=data, headers=hdrs, method=method.upper())
     try:
@@ -168,7 +168,7 @@ def iter_sse_json(
     hdrs.setdefault("Accept", "text/event-stream")
     hdrs.setdefault(
         "User-Agent",
-        "Mozilla/5.0 (compatible; Tollgate/0.1; +https://github.com/landjunge/tollgate)",
+        "Mozilla/5.0 (compatible; Tollgate/0.1; +https://github.com/landjunge/TollGate)",
     )
     req = urllib.request.Request(url, data=data, headers=hdrs, method=method.upper())
     try:

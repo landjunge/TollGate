@@ -2,7 +2,7 @@
 
 Static product landing (ops desk aesthetic) for GitHub Pages.
 
-**Live:** https://landjunge.github.io/tollgate/
+**Live:** https://landjunge.github.io/TollGate/
 
 ## SEO / Google indexing
 
@@ -20,8 +20,8 @@ Static product landing (ops desk aesthetic) for GitHub Pages.
 
 ### Google Search Console
 
-1. Property: `https://landjunge.github.io/tollgate/`
-2. Submit sitemap: `https://landjunge.github.io/tollgate/sitemap.xml`
+1. Property: `https://landjunge.github.io/TollGate/`
+2. Submit sitemap: `https://landjunge.github.io/TollGate/sitemap.xml`
 3. Request indexing for `/` and `/de.html`
 
 ## Local preview

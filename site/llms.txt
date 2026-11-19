@@ -1,20 +1,20 @@
-# Tollgate (landjunge/tollgate)
+# Tollgate (landjunge/TollGate)
 > Safety layer for AI agents — Protect · Route · Prove.
 > Not an LLM catalog / multi-provider marketplace. Pre-admission control plane.
 > Disambiguation: NOT OpenTollGate (network payment protocol) and NOT a highway/road toll product.
-> Brand: landjunge · Repo: https://github.com/landjunge/tollgate
+> Brand: landjunge · Repo: https://github.com/landjunge/TollGate
 
-- Site: https://landjunge.github.io/tollgate/
-- What is Tollgate?: https://landjunge.github.io/tollgate/what-is-tollgate.html
-- DE: https://landjunge.github.io/tollgate/de.html
-- Docs: https://landjunge.github.io/tollgate/docs.html
-- Ecosystem: https://landjunge.github.io/tollgate/ecosystem.html
-- Launch: https://landjunge.github.io/tollgate/blog/launch.html
-- Launch (DE): https://landjunge.github.io/tollgate/blog/launch-de.html
-- Safety checklist: https://landjunge.github.io/tollgate/blog/checklist.html
-- Press kit: https://landjunge.github.io/tollgate/press/
-- Repo: https://github.com/landjunge/tollgate
-- Discussions: https://github.com/landjunge/tollgate/discussions
+- Site: https://landjunge.github.io/TollGate/
+- What is Tollgate?: https://landjunge.github.io/TollGate/what-is-tollgate.html
+- DE: https://landjunge.github.io/TollGate/de.html
+- Docs: https://landjunge.github.io/TollGate/docs.html
+- Ecosystem: https://landjunge.github.io/TollGate/ecosystem.html
+- Launch: https://landjunge.github.io/TollGate/blog/launch.html
+- Launch (DE): https://landjunge.github.io/TollGate/blog/launch-de.html
+- Safety checklist: https://landjunge.github.io/TollGate/blog/checklist.html
+- Press kit: https://landjunge.github.io/TollGate/press/
+- Repo: https://github.com/landjunge/TollGate
+- Discussions: https://github.com/landjunge/TollGate/discussions
 - Gist: https://gist.github.com/landjunge/ce4190deb6536cc6134c767f500c4dc9
 - 10-min gist: https://gist.github.com/landjunge/5b36c2afc4e5242e55700aee28407f03
 
@@ -26,7 +26,7 @@
 
 ## Cold start (10 minutes, Protect needs no keys)
 ```
-git clone https://github.com/landjunge/tollgate.git && cd tollgate
+git clone https://github.com/landjunge/TollGate.git tollgate && cd tollgate
 python3 -m venv .venv && .venv/bin/pip install -e .
 ./scripts/ten-minute.sh
 # Dashboard: http://127.0.0.1:8787/dashboard

@@ -1,6 +1,6 @@
 # n8n-nodes-tollgate
 
-Community node for **[Tollgate](https://github.com/landjunge/tollgate)** — local multi-consumer API admission gateway.
+Community node for **[Tollgate](https://github.com/landjunge/TollGate)** — local multi-consumer API admission gateway.
 
 n8n never holds DeepSeek / Brave / Google keys. Only a **consumer label** (open mode) or `id:secret`.
 

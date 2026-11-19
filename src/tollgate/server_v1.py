@@ -105,7 +105,7 @@ app = FastAPI(
     description=(
         "Tollgate — AI reliability & control plane. "
         "Protect · Route · Prove (chaos failover tests). "
-        "https://github.com/landjunge/tollgate"
+        "https://github.com/landjunge/TollGate"
     ),
 )
 
@@ -1256,7 +1256,7 @@ def root() -> dict[str, Any]:
         "service": "tollgate",
         "product": "Tollgate",
         "docs": "/docs",
-        "repo": "https://github.com/landjunge/tollgate",
+        "repo": "https://github.com/landjunge/TollGate",
         "openai_base_url": "/v1",
         "openai": ["/v1/chat/completions", "/v1/models"],
         "anthropic_base_url": "/",

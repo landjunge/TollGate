@@ -17,6 +17,8 @@ def test_root_and_health(monkeypatch, tmp_path):
     client = TestClient(app)
     root = client.get("/").json()
     assert root["service"] == "tollgate"
+    assert root["repo"] == "https://github.com/landjunge/TollGate"
+    assert "https://github.com/landjunge/TollGate" in app.description
     assert "docs/VISION.md" == root["vision"]
     assert "/v1/auth" in root["v1"]
 
