@@ -70,4 +70,4 @@ See [docs/N8N.md](../docs/N8N.md).
 
 ## License
 
-MIT
+Netzwerkpunkt Personal Use License 1.0. See [LICENSE](LICENSE).
